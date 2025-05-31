@@ -1,14 +1,16 @@
 package com.oauthapp.controller;
 
-import com.oauthapp.dao.UserRepository;
+import com.oauthapp.repository.UserRepository;
 import com.oauthapp.dto.DataApiResponse;
-import com.oauthapp.dto.UserDto;
+import com.oauthapp.dto.UserRequestDto;
 import com.oauthapp.dto.UserResponse;
 import com.oauthapp.util.JWTUtil;
 import com.oauthapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,10 +28,10 @@ public class AuthController {
     private UserRepository userRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<DataApiResponse<UserResponse>> registerUser(UserDto userdata) {
+    public ResponseEntity<DataApiResponse<UserResponse>> registerUser(@RequestBody UserRequestDto userdata) {
         UserResponse userResponse = userService.registerUser(userdata);
         DataApiResponse<UserResponse> response = new DataApiResponse<>("success", 200, "User registered successfully", userResponse);
-        return ResponseEntity.ok(response);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

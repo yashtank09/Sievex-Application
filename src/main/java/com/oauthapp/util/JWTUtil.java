@@ -14,7 +14,7 @@ import java.util.Map;
 @Component
 public class JWTUtil {
 
-    private JwtProperties jwtProperties;
+    private final JwtProperties jwtProperties;
 
     @Autowired
     public JWTUtil(JwtProperties jwtProperties) {

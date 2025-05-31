@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserResponse {
     @JsonProperty("user-name")
-    private String username;
+    private String userName;
     @JsonProperty("email")
     private String email;
     @JsonProperty("first-name")
@@ -19,12 +19,4 @@ public class UserResponse {
     private String lastName;
     @JsonProperty("phone")
     private String phone;
-    @JsonProperty("password")
-    private String password;
-    @JsonProperty("role")
-    private String role;
-    @JsonProperty("type")
-    private String type;
-    @JsonProperty("status")
-    private String status;
 }
