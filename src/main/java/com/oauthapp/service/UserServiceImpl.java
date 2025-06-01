@@ -8,7 +8,12 @@ import com.oauthapp.enums.UserRole;
 import com.oauthapp.enums.UserStatus;
 import com.oauthapp.enums.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -47,7 +52,12 @@ public class UserServiceImpl implements UserService {
         response.setFirstName(save.getFirstName());
         response.setLastName(save.getLastName());
         response.setPhone(save.getPhone());
-        response.setStatus(save.getStatus());
         return response;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Users user = userRepository.findByUserName(username);
+        return new User(user.getUserName(), user.getPassword(), Collections.emptyList());
     }
 }

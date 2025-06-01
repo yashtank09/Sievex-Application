@@ -1,12 +1,10 @@
 package com.oauthapp.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class DataApiResponse<T> {
     @JsonProperty("status")
@@ -15,12 +13,31 @@ public class DataApiResponse<T> {
     private int statusCode;
     @JsonProperty("status_message")
     private String statusMessage;
+
+    @JsonProperty("token")
+    private String token;
+
     @JsonProperty("data")
     private T data;
+
+    public DataApiResponse(String status, int statusCode, String statusMessage, T data) {
+        this.status = status;
+        this.statusCode = statusCode;
+        this.statusMessage = statusMessage;
+        this.data = data;
+    }
 
     public DataApiResponse(String status, int statusCode, String statusMessage) {
         this.status = status;
         this.statusCode = statusCode;
         this.statusMessage = statusMessage;
+    }
+
+    public DataApiResponse(String status, int statusCode, String statusMessage, String token, T data) {
+        this.status = status;
+        this.statusCode = statusCode;
+        this.statusMessage = statusMessage;
+        this.token = token;
+        this.data = data;
     }
 }
