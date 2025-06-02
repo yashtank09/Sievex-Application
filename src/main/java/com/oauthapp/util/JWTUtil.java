@@ -61,4 +61,11 @@ public class JWTUtil {
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder().setSigningKey(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)).build().parseClaimsJws(token).getBody();
     }
+
+    public String extractTokenFromHeader(String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        throw new IllegalArgumentException("Invalid Authorization header");
+    }
 }

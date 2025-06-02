@@ -7,6 +7,8 @@ import com.oauthapp.entity.Users;
 import com.oauthapp.enums.UserRole;
 import com.oauthapp.enums.UserStatus;
 import com.oauthapp.enums.UserType;
+import com.oauthapp.util.JWTUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,10 +21,12 @@ import java.util.Collections;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final JWTUtil jwtUtil;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, JWTUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     private Users setRegisterUserData(UserRequestDto userRequestData) {
@@ -42,10 +46,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse registerUser(UserRequestDto userRequestDto) {
-        return setRegistrationResponseData(userRepository.save(setRegisterUserData(userRequestDto)));
+        return setUserResponseData(userRepository.save(setRegisterUserData(userRequestDto)));
     }
 
-    private UserResponse setRegistrationResponseData(Users save) {
+    @Override
+    public UserResponse getUserProfile(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        String token = jwtUtil.extractTokenFromHeader(authHeader);
+        String userName = jwtUtil.extractUserName(token);
+        return setUserResponseData(userRepository.findByUserName(userName));
+    }
+
+    private UserResponse setUserResponseData(Users save) {
         UserResponse response = new UserResponse();
         response.setUserName(save.getUserName());
         response.setEmail(save.getEmail());
