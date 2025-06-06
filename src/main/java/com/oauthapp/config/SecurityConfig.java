@@ -28,6 +28,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll() // Allow auth endpoints (login, register)
                         .requestMatchers("/public/**").permitAll() // Allow other public endpoints if needed
                         .requestMatchers("/login/user").permitAll() // Allow data API endpoints
+                        .requestMatchers("/actuator/**").permitAll() // Allow data API endpoints
                         .anyRequest().authenticated() // All other endpoints require authentication
                 )
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)) // Custom entry point for handling unauthorized access
