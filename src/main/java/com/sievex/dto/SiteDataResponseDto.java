@@ -12,5 +12,5 @@ public class SiteDataResponseDto {
     private String siteDescription;
     private String siteCategory;
     private String siteCountry;
-    private String siteStatus;
+    private Boolean siteStatus;
 }

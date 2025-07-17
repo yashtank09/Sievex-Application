@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class UnifiedApplication {
+public class SievexApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(UnifiedApplication.class, args);
+		SpringApplication.run(SievexApplication.class, args);
 	}
 
 }

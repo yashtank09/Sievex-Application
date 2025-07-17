@@ -1,16 +1,16 @@
 package com.sievex.crawler.service;
-import com.sievex.crawler.entity.SiteData;
+import com.sievex.crawler.entity.Site;
 
 import java.util.List;
 
 public interface SiteService {
-    SiteData saveSite(SiteData siteData);
+    Site saveSite(Site site);
 
-    List<SiteData> getAllSites();
+    List<Site> getAllSites();
 
-    SiteData getSiteById(Long id);
+    Site getSiteById(Long id);
 
     void deleteSiteById(Long id);
 
-    SiteData updateSite(SiteData siteData);
+    Site updateSite(Site site);
 }

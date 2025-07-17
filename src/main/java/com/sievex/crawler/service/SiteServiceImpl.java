@@ -1,6 +1,6 @@
 package com.sievex.crawler.service;
 
-import com.sievex.crawler.entity.SiteData;
+import com.sievex.crawler.entity.Site;
 import com.sievex.crawler.repository.SiteRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,17 +16,17 @@ public class SiteServiceImpl implements SiteService {
     }
 
     @Override
-    public SiteData saveSite(SiteData siteData) {
-        return siteRepository.save(siteData);
+    public Site saveSite(Site site) {
+        return siteRepository.save(site);
     }
 
     @Override
-    public List<SiteData> getAllSites() {
+    public List<Site> getAllSites() {
         return siteRepository.findAll();
     }
 
     @Override
-    public SiteData getSiteById(Long id) {
+    public Site getSiteById(Long id) {
         return siteRepository.findById(id).orElseThrow(() -> new RuntimeException("Site not found with id: " + id));
     }
 
@@ -36,7 +36,7 @@ public class SiteServiceImpl implements SiteService {
     }
 
     @Override
-    public SiteData updateSite(SiteData siteData) {
-        return siteRepository.save(siteData);
+    public Site updateSite(Site site) {
+        return siteRepository.save(site);
     }
 }

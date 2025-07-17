@@ -6,28 +6,25 @@ import lombok.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "site_type")
+@Table(name = "job_types")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SiteType {
-
+public class JobType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Byte id;
 
     @Column(nullable = false, unique = true, length = 50)
-    private String name;  // e.g. ECOMMERCE
+    private String code;
 
-    @Column(length = 50)
-    private String alias; // Amazon, Flipkart
+    @Column(nullable = false, length = 100)
+    private String label;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    private Boolean status = true;
+    @Column(nullable = false, length = 1)
+    private Byte status;
 
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
@@ -36,13 +33,13 @@ public class SiteType {
     private Instant updatedAt;
 
     @PrePersist
-    public void prePersist() {
-        createdAt = Instant.now();
-        updatedAt = Instant.now();
+    protected void onCreate() {
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
     }
 
     @PreUpdate
-    public void preUpdate() {
-        updatedAt = Instant.now();
+    protected void onUpdate() {
+        this.updatedAt = Instant.now();
     }
 }

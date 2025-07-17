@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.oatchapp</groupId>
-    <artifactId>Oath-Applicatoin</artifactId>
+    <artifactId>Unified-Application</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Oath-Applicatoin</name>
+    <name>Unified-Application</name>
     <description>Demo project for Spring Boot</description>
     <url/>
     <licenses>
