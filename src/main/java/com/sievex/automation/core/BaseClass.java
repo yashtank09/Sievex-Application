@@ -7,6 +7,11 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,5 +60,12 @@ public abstract class BaseClass {
                 logger.error("Error while quitting WebDriver", e);
             }
         }
+    }
+
+    protected String saveHtmlToFile(Long jobId, String html, String filePrefix) throws IOException {
+        Path path = Paths.get("data_resource/outer_htmls/" + filePrefix +"_"+ jobId + ".html");
+        Files.createDirectories(path.getParent());
+        Files.writeString(path, html, StandardCharsets.UTF_8);
+        return path.toString();
     }
 }

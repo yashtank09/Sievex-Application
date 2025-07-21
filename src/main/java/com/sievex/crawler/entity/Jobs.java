@@ -43,7 +43,7 @@ public class Jobs {
     private int priority;
 
     @Column(name = "page_source_path")
-    private int pageSourcePath;
+    private String pageSourcePath;
 
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
