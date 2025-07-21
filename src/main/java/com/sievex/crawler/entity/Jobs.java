@@ -14,6 +14,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class Jobs {
+
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;

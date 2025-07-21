@@ -10,7 +10,7 @@ public class PropertyLoader {
     private PropertyLoader() {}
 
     static {
-        try (InputStream input = PropertyLoader.class.getClassLoader().getResourceAsStream("application.properties")) {
+        try (InputStream input = PropertyLoader.class.getClassLoader().getResourceAsStream("automation.properties")) {
             if (input != null) {
                 properties.load(input);
             } else {

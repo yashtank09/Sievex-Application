@@ -6,7 +6,7 @@ import lombok.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "status_type")
+@Table(name = "m_status_types")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,16 +18,21 @@ public class StatusType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Byte id;
 
-    @Column(nullable = false, unique = true, length = 50)
-    private String code; // PENDING, RUNNING, etc.
+    @Column(nullable = false, length = 50)
+    private String name; // PENDING, RUNNING, etc.
 
-    @Column(nullable = false, length = 100)
-    private String label; // Human-readable form: Pending, Running
+    @Column(nullable = false, unique = true, length = 50)
+    private String alias; // Human-readable form: Pending, Running
+
+    @Column(columnDefinition = "TEXT")
+    private String description; // Optional description of the status
+
+    private Boolean status = true; // Active or inactive status
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     @PrePersist

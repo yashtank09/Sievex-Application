@@ -6,7 +6,7 @@ import lombok.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "site_type")
+@Table(name = "m_site_types")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,31 +18,31 @@ public class SiteType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Byte id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, length = 50)
     private String name;  // e.g. ECOMMERCE
 
-    @Column(length = 50)
+    @Column(nullable = false, unique = true, length = 50)
     private String alias; // Amazon, Flipkart
 
     @Column(columnDefinition = "TEXT")
-    private String description;
+    private String description; // Optional description of the site type
 
-    private Boolean status = true;
+    private Boolean status = true; // Active or inactive status
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     @PrePersist
-    public void prePersist() {
-        createdAt = Instant.now();
-        updatedAt = Instant.now();
+    protected void onCreate() {
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
     }
 
     @PreUpdate
-    public void preUpdate() {
+    protected void onUpdate() {
         updatedAt = Instant.now();
     }
 }

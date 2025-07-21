@@ -41,7 +41,14 @@ public class Site {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "site_type_id", referencedColumnName = "id", nullable = false)
+    @ToString.Exclude
     private SiteType siteType;
+
+    @Column(name = "crawler_class_name", nullable = false, length = 255)
+    private String crawlerClassName;
+
+    @Column(name = "extractor_class_name", nullable = false, length = 255)
+    private String extractorClassName;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
