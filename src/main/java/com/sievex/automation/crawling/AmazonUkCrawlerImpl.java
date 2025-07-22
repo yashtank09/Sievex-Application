@@ -11,11 +11,13 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 
+@Component
 public class AmazonUkCrawlerImpl extends BaseClass implements Crawler {
 
     private static final Logger logger = LoggerFactory.getLogger(AmazonUkCrawlerImpl.class);
@@ -57,6 +59,6 @@ public class AmazonUkCrawlerImpl extends BaseClass implements Crawler {
 
     @Override
     public boolean supports(String domain) {
-        return false;
+        return domain != null && domain.contains("amazon.co.uk");
     }
 }

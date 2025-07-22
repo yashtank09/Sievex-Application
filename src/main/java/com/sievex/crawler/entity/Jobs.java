@@ -7,7 +7,7 @@ import java.time.Instant;
 
 
 @Entity
-@Table(name = "jobs")
+@Table(name = "m_jobs")
 @Getter
 @Setter
 @NoArgsConstructor

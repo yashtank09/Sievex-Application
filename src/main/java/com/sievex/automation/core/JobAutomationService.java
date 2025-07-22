@@ -1,19 +1,21 @@
 package com.sievex.automation.core;
 
-import com.sievex.crawler.repository.JobRepository;
-import com.sievex.crawler.repository.SiteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
+@Service
 public class JobAutomationService {
 
-    private final JobRepository jobRepository;
-    private final SiteRepository siteRepository;
+    private final JobExecutor jobExecutor;
 
-    public JobAutomationService(JobRepository jobRepository, SiteRepository siteRepository) {
-        this.jobRepository = jobRepository;
-        this.siteRepository = siteRepository;
+    @Autowired
+    public JobAutomationService(JobExecutor jobExecutor) {
+        this.jobExecutor = jobExecutor;
     }
 
-    public void processPendingJobs() {
-
+    @Scheduled(fixedRate = 10000) // Run every minute
+    public void runJobAutomation() {
+        jobExecutor.executePendingJobs();
     }
 }
