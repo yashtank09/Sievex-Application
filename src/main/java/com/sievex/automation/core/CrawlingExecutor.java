@@ -16,21 +16,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Component
-public class JobExecutor {
+public class CrawlingExecutor {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobExecutor.class);
+    private static final Logger logger = LoggerFactory.getLogger(CrawlingExecutor.class);
 
     private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
     private final JobRepository jobRepository;
     private final StatusTypeRepository statusTypeRepository;
     private final CrawlerFactory crawlerFactory;
+    private final ExtractorExecutor extractorExecutor;
 
     @Autowired
-    public JobExecutor(JobRepository jobRepository, StatusTypeRepository statusTypeRepository, CrawlerFactory crawlerFactory) {
+    public CrawlingExecutor(JobRepository jobRepository, StatusTypeRepository statusTypeRepository, CrawlerFactory crawlerFactory, ExtractorExecutor extractorExecutor) {
         this.jobRepository = jobRepository;
         this.statusTypeRepository = statusTypeRepository;
         this.crawlerFactory = crawlerFactory;
+        this.extractorExecutor = extractorExecutor;
     }
 
     public void executePendingJobs() {
@@ -97,13 +99,15 @@ public class JobExecutor {
                 job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.CRAWLING_COMPLETED.getType()));
             } else {
                 logger.error("Crawling failed for job {}: {}", job.getId(), crawlResult.getMessage());
-                job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.FAILED.getType()));
+                job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.CRAWLING_FAILED.getType()));
             }
         } catch (Exception e) {
             // Handle exceptions specific to job processing
-            job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.FAILED.getType()));
+            logger.error("Error processing job {}: {}", job.getId(), e.getMessage());
+            job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.CRAWLING_FAILED.getType()));
         } finally {
             jobRepository.save(job);
+            logger.info("Crawling job {} completed successfully.", job.getId());
         }
     }
 

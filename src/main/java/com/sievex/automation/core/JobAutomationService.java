@@ -7,15 +7,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class JobAutomationService {
 
-    private final JobExecutor jobExecutor;
+    private final CrawlingExecutor jobExecutor;
+    private final ExtractorExecutor extractorExecutor;
 
     @Autowired
-    public JobAutomationService(JobExecutor jobExecutor) {
+    public JobAutomationService(CrawlingExecutor jobExecutor, ExtractorExecutor extractorExecutor) {
         this.jobExecutor = jobExecutor;
+        this.extractorExecutor = extractorExecutor;
     }
 
     @Scheduled(fixedRate = 10000) // Run every minute
     public void runJobAutomation() {
         jobExecutor.executePendingJobs();
+        extractorExecutor.executePendingJobs();
     }
 }

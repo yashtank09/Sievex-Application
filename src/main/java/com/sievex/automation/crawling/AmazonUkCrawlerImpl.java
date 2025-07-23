@@ -36,7 +36,7 @@ public class AmazonUkCrawlerImpl extends BaseClass implements Crawler {
     public CrawlResult crawl(Jobs job) {
         try {
             String url = job.getUrl();
-            Document doc = Jsoup.connect(url).get();
+            Document doc = Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0").timeout(10000).get();
             String html = doc.outerHtml();
 
             String filePath = saveHtmlToFile(job.getId(), html, "amazon-uk");
