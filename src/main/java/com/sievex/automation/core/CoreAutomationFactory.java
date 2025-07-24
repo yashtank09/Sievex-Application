@@ -1,7 +1,7 @@
 package com.sievex.automation.core;
 
-import com.sievex.automation.crawling.Crawler;
-import com.sievex.automation.extracting.Extractor;
+import com.sievex.automation.crawlers.Crawler;
+import com.sievex.automation.extractors.Extractor;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;

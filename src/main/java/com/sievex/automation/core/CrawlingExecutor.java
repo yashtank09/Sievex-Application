@@ -1,6 +1,6 @@
 package com.sievex.automation.core;
 
-import com.sievex.automation.crawling.Crawler;
+import com.sievex.automation.crawlers.Crawler;
 import com.sievex.crawler.entity.Jobs;
 import com.sievex.crawler.enums.StatusTypeEnum;
 import com.sievex.crawler.repository.JobRepository;
@@ -25,14 +25,12 @@ public class CrawlingExecutor {
     private final JobRepository jobRepository;
     private final StatusTypeRepository statusTypeRepository;
     private final CrawlerFactory crawlerFactory;
-    private final ExtractorExecutor extractorExecutor;
 
     @Autowired
-    public CrawlingExecutor(JobRepository jobRepository, StatusTypeRepository statusTypeRepository, CrawlerFactory crawlerFactory, ExtractorExecutor extractorExecutor) {
+    public CrawlingExecutor(JobRepository jobRepository, StatusTypeRepository statusTypeRepository, CrawlerFactory crawlerFactory) {
         this.jobRepository = jobRepository;
         this.statusTypeRepository = statusTypeRepository;
         this.crawlerFactory = crawlerFactory;
-        this.extractorExecutor = extractorExecutor;
     }
 
     public void executePendingJobs() {

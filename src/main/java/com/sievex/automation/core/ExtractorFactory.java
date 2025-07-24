@@ -1,6 +1,6 @@
 package com.sievex.automation.core;
 
-import com.sievex.automation.extracting.Extractor;
+import com.sievex.automation.extractors.Extractor;
 
 public interface ExtractorFactory {
     Extractor getExtractor(String className);

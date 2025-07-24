@@ -2,6 +2,7 @@ package com.sievex.crawler.service;
 
 import com.sievex.crawler.entity.Site;
 import com.sievex.crawler.repository.SiteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,6 +12,7 @@ public class SiteServiceImpl implements SiteService {
 
     private final SiteRepository siteRepository;
 
+    @Autowired
     SiteServiceImpl(SiteRepository theSiteRepository) {
         siteRepository = theSiteRepository;
     }

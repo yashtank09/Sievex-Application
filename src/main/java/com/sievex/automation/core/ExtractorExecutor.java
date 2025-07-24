@@ -1,6 +1,6 @@
 package com.sievex.automation.core;
 
-import com.sievex.automation.extracting.Extractor;
+import com.sievex.automation.extractors.Extractor;
 import com.sievex.crawler.entity.Jobs;
 import com.sievex.crawler.enums.StatusTypeEnum;
 import com.sievex.crawler.repository.JobRepository;

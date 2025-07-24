@@ -1,4 +1,4 @@
-package com.sievex.automation.extracting;
+package com.sievex.automation.extractors;
 
 import com.sievex.crawler.entity.Jobs;
 import com.sievex.dto.ExtractionResult;
