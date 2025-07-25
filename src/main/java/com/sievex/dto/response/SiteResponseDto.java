@@ -1,9 +1,9 @@
-package com.sievex.dto;
+package com.sievex.dto.response;
 
 import lombok.Data;
 
 @Data
-public class SiteDataResponseDto {
+public class SiteResponseDto {
     private Long siteId;
     private String siteName;
     private String siteDomain;
