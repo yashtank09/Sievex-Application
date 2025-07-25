@@ -6,4 +6,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource(path = "siteType", collectionResourceRel = "siteType")
 public interface SiteTypeRepository extends JpaRepository<SiteType, Long> {
+    SiteType findByAlias(String alias);
 }
