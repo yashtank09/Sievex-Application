@@ -1,11 +1,8 @@
 package com.sievex.crawler.controller;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.sievex.constants.ApiResponseConstants;
 import com.sievex.crawler.entity.Jobs;
 import com.sievex.crawler.repository.JobTypeRepository;
-import com.sievex.crawler.repository.SiteRepository;
-import com.sievex.crawler.repository.SiteTypeRepository;
 import com.sievex.crawler.service.JobsService;
 import com.sievex.dto.DataApiResponse;
 import com.sievex.dto.request.JobsRequestDto;
@@ -18,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -27,15 +25,11 @@ public class JobsController {
     private static final Logger logger = LoggerFactory.getLogger(JobsController.class);
 
     private final JobsService jobsService;
-    private final SiteRepository siteRepository;
-    private final SiteTypeRepository siteTypeRepository;
     private final JobTypeRepository jobTypeRepository;
 
     @Autowired
-    public JobsController(JobsService jobsService, SiteTypeRepository siteTypeRepository, SiteRepository siteRepository, JobTypeRepository jobTypeRepository) {
+    public JobsController(JobsService jobsService, JobTypeRepository jobTypeRepository) {
         this.jobsService = jobsService;
-        this.siteTypeRepository = siteTypeRepository;
-        this.siteRepository = siteRepository;
         this.jobTypeRepository = jobTypeRepository;
     }
 
@@ -64,7 +58,7 @@ public class JobsController {
     }
 
 
-    @GetMapping("/all")
+    @GetMapping("/get/all")
     public ResponseEntity<DataApiResponse<List<JobsResponseDto>>> getAllJobs() {
         List<Jobs> jobsList = jobsService.getAllJobs();
         if (jobsList.isEmpty()) {
@@ -91,5 +85,12 @@ public class JobsController {
         }
         List<JobsResponseDto> createdJobsResponse = createdJobs.stream().map(this::toResponseEntity).toList();
         return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_SUCCESS, ApiResponseConstants.CODE_OK, ApiResponseConstants.MSG_READ_SUCCESS, createdJobsResponse), HttpStatus.OK);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<DataApiResponse<List<JobsResponseDto>>> updateJob(@RequestBody List<JobsRequestDto> jobsRequest)  {
+        List<JobsResponseDto> dataList = jobsService.updateJobs(jobsRequest.stream().map(this::toRequestEntity).toList());
+
+        return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_SUCCESS, ApiResponseConstants.CODE_OK, ApiResponseConstants.MSG_UPDATE_SUCCESS, dataList), HttpStatus.OK);
     }
 }
