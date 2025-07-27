@@ -3,8 +3,8 @@ package com.sievex.automation.core;
 import com.sievex.automation.extractors.Extractor;
 import com.sievex.crawler.entity.Jobs;
 import com.sievex.crawler.enums.StatusTypeEnum;
-import com.sievex.crawler.repository.JobRepository;
-import com.sievex.crawler.repository.StatusTypeRepository;
+import com.sievex.crawler.service.JobsService;
+import com.sievex.crawler.service.StatusTypeService;
 import com.sievex.dto.ExtractionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,20 +21,20 @@ public class ExtractorExecutor {
 
     private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
-    private final JobRepository jobRepository;
-    private final StatusTypeRepository statusTypeRepository;
+    private final JobsService jobsService;
+    private final StatusTypeService statusTypeService;
     private final ExtractorFactory extractorFactory;
 
     @Autowired
-    public ExtractorExecutor(JobRepository jobRepository, StatusTypeRepository statusTypeRepository, ExtractorFactory extractorFactory) {
-        this.jobRepository = jobRepository;
-        this.statusTypeRepository = statusTypeRepository;
+    public ExtractorExecutor(JobsService jobsService, StatusTypeService statusTypeService, ExtractorFactory extractorFactory) {
+        this.jobsService = jobsService;
+        this.statusTypeService = statusTypeService;
         this.extractorFactory = extractorFactory;
     }
 
     public void executePendingJobs() {
         logger.info("Executing pending extractor jobs...");
-        List<Jobs> pendingJobs = jobRepository.findTop5ByStatusAliasOrderByPriorityAscCreatedAtAsc(StatusTypeEnum.CRAWLING_COMPLETED.getType());
+        List<Jobs> pendingJobs = jobsService.findTop5PendingJobs(StatusTypeEnum.CRAWLING_COMPLETED.getType());
         if (pendingJobs == null || pendingJobs.isEmpty()) {
             logger.info("No pending extractor jobs found to execute.");
             return;
@@ -54,8 +54,8 @@ public class ExtractorExecutor {
 
     private void processExtractorJobs(Jobs job) {
         try {
-            job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.EXTRACTING_IN_PROGRESS.getType()));
-            jobRepository.save(job);
+            job.setStatus(statusTypeService.getStatusTypeByAlias(StatusTypeEnum.EXTRACTING_IN_PROGRESS.getType()));
+            jobsService.saveJob(job);
             logger.info("Processing extractor job: {}", job.getId());
 
             // Get the extractor class name from the job
@@ -82,19 +82,19 @@ public class ExtractorExecutor {
             ExtractionResult extractionResult = extractor.extract(job);
             logger.info("Extraction result: {}", extractionResult.getDataFilePath());
             if (extractionResult.isSuccess()) {
-                job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.EXTRACTING_COMPLETED.getType()));
+                job.setStatus(statusTypeService.getStatusTypeByAlias(StatusTypeEnum.EXTRACTING_COMPLETED.getType()));
                 logger.info("Extraction completed successfully for job {}", job.getId());
             } else {
-                job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.EXTRACTING_FAILED.getType()));
+                job.setStatus(statusTypeService.getStatusTypeByAlias(StatusTypeEnum.EXTRACTING_FAILED.getType()));
                 logger.error("Extraction failed for job {}: {}", job.getId(), extractionResult.getMessage());
             }
         } catch (Exception e) {
             // Handle exceptions
             logger.error("Error processing extractor job {} : {}", job.getId(), e.getMessage(), e);
-            job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.EXTRACTING_FAILED.getType()));
+            job.setStatus(statusTypeService.getStatusTypeByAlias(StatusTypeEnum.EXTRACTING_FAILED.getType()));
         } finally {
             // Update job status to completed
-            jobRepository.save(job);
+            jobsService.saveJob(job);
             logger.info("Extractor job {} completed successfully.", job.getId());
         }
     }

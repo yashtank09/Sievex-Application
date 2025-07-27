@@ -1,9 +1,7 @@
 package com.sievex.crawler.service;
 
 import com.sievex.crawler.entity.Jobs;
-import com.sievex.crawler.entity.StatusType;
 import com.sievex.crawler.repository.JobRepository;
-import com.sievex.dto.response.JobsResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,12 +33,24 @@ public class JobsServiceImpl implements JobsService {
     }
 
     @Override
-    public List<Jobs> getPendingJobs(StatusType statusAlias) {
+    public List<Jobs> getPendingJobs(String statusAlias) {
         return jobRepository.findPendingJobs(statusAlias);
     }
 
     @Override
-    public List<JobsResponseDto> updateJobs(List<Jobs> list) {
-        return List.of();
+    public List<Jobs> updateJobs(List<Jobs> list) {
+
+        return jobRepository.saveAll(list);
+    }
+
+    @Override
+    public boolean deleteJobById(Long id) {
+        jobRepository.deleteById(id);
+        return !jobRepository.existsById(id);
+    }
+
+    @Override
+    public List<Jobs> findTop5PendingJobs(String statusAlias) {
+        return jobRepository.findTop5ByStatusAliasOrderByPriorityAscCreatedAtAsc(statusAlias);
     }
 }

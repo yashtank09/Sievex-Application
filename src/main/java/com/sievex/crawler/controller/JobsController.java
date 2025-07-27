@@ -2,7 +2,7 @@ package com.sievex.crawler.controller;
 
 import com.sievex.constants.ApiResponseConstants;
 import com.sievex.crawler.entity.Jobs;
-import com.sievex.crawler.repository.JobTypeRepository;
+import com.sievex.crawler.service.JobTypeService;
 import com.sievex.crawler.service.JobsService;
 import com.sievex.dto.DataApiResponse;
 import com.sievex.dto.request.JobsRequestDto;
@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,12 +24,12 @@ public class JobsController {
     private static final Logger logger = LoggerFactory.getLogger(JobsController.class);
 
     private final JobsService jobsService;
-    private final JobTypeRepository jobTypeRepository;
+    private final JobTypeService jobTypeService;
 
     @Autowired
-    public JobsController(JobsService jobsService, JobTypeRepository jobTypeRepository) {
+    public JobsController(JobsService jobsService, JobTypeService jobTypeService) {
         this.jobsService = jobsService;
-        this.jobTypeRepository = jobTypeRepository;
+        this.jobTypeService = jobTypeService;
     }
 
     private Jobs toRequestEntity(JobsRequestDto jobDto) {
@@ -41,7 +40,7 @@ public class JobsController {
         entity.setName(jobDto.getName());
         entity.setUrl(jobDto.getUrl());
         entity.setDescription(jobDto.getDescription());
-        entity.setJobTypeId(jobTypeRepository.findByAlias(jobDto.getJobType()));
+        entity.setJobTypeId(jobTypeService.getJobTypeByAlias(jobDto.getJobType()));
         entity.setPriority(jobDto.getPriority());
         return entity;
     }
@@ -88,9 +87,23 @@ public class JobsController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<DataApiResponse<List<JobsResponseDto>>> updateJob(@RequestBody List<JobsRequestDto> jobsRequest)  {
-        List<JobsResponseDto> dataList = jobsService.updateJobs(jobsRequest.stream().map(this::toRequestEntity).toList());
+    public ResponseEntity<DataApiResponse<List<JobsResponseDto>>> updateJobs(@RequestBody List<JobsRequestDto> jobsRequest) {
+        List<Jobs> dataList = jobsService.updateJobs(jobsRequest.stream().map(this::toRequestEntity).toList());
+        if (dataList.isEmpty()) {
+            logger.error("Failed to update job data");
+            return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_FAILURE, ApiResponseConstants.CODE_BAD_REQUEST, ApiResponseConstants.MSG_UPDATE_FAILED), HttpStatus.BAD_REQUEST);
+        }
+        List<JobsResponseDto> dataListResponse = dataList.stream().map(this::toResponseEntity).toList();
+        return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_SUCCESS, ApiResponseConstants.CODE_OK, ApiResponseConstants.MSG_UPDATE_SUCCESS, dataListResponse), HttpStatus.OK);
+    }
 
-        return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_SUCCESS, ApiResponseConstants.CODE_OK, ApiResponseConstants.MSG_UPDATE_SUCCESS, dataList), HttpStatus.OK);
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<DataApiResponse<Void>> deleteJobById(@PathVariable Long id) {
+        boolean isDeleted = jobsService.deleteJobById(id);
+        if (!isDeleted) {
+            logger.error("Failed to delete job data");
+            return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_FAILURE, ApiResponseConstants.CODE_BAD_REQUEST, ApiResponseConstants.MSG_DELETE_FAILED), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_SUCCESS, ApiResponseConstants.CODE_OK, ApiResponseConstants.MSG_DELETE_SUCCESS), HttpStatus.OK);
     }
 }

@@ -1,62 +1,68 @@
 package com.sievex.auth.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
 @Entity
 @Table(name = "m_users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
-    @Column(name = "user_id")
     private Long id;
-    @Column(name = "user_name")
+
+    @Column(unique = true, nullable = false, length = 100)
     private String userName;
-    @Column(name = "user_email")
+
+    @Column(nullable = false, unique = true, length = 150)
     private String email;
-    @Column(name = "user_first_name")
+
+    @Column(length = 100)
     private String firstName;
-    @Column(name = "user_last_name")
+
+    @Column(length = 100)
     private String lastName;
-    @Column(name = "user_phone")
+
+    @Column(length = 15)
     private String phone;
 
-    @JsonIgnore
-    @Column(name = "user_profile_completed")
-    private boolean profileCompleted;
+    @Column(name = "profile_completed", nullable = false)
+    private boolean profileCompleted = false;
 
-    @Column(name = "user_password")
+    @Column(nullable = false)
     private String password;
 
-    @JsonIgnore
-    @Column(name = "user_role")
+    @Column(length = 50)
     private String role;
 
-    @JsonIgnore
-    @Column(name = "user_type")
+    @Column(length = 50)
     private String type;
 
-    @JsonIgnore
-    @Column(name = "user_status")
+    @Column(length = 50)
     private String status;
 
-    @JsonIgnore
-    @Column(name = "created_at")
-    private String createdAt;
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
-    @JsonIgnore
     @Column(name = "updated_at")
-    private String updatedAt;
+    private LocalDateTime updatedAt;
 
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

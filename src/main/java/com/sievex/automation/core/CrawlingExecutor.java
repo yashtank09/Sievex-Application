@@ -3,8 +3,8 @@ package com.sievex.automation.core;
 import com.sievex.automation.crawlers.Crawler;
 import com.sievex.crawler.entity.Jobs;
 import com.sievex.crawler.enums.StatusTypeEnum;
-import com.sievex.crawler.repository.JobRepository;
-import com.sievex.crawler.repository.StatusTypeRepository;
+import com.sievex.crawler.service.JobsService;
+import com.sievex.crawler.service.StatusTypeService;
 import com.sievex.dto.CrawlResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,19 +22,19 @@ public class CrawlingExecutor {
 
     private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
-    private final JobRepository jobRepository;
-    private final StatusTypeRepository statusTypeRepository;
+    private final JobsService jobsService;
+    private final StatusTypeService statusTypeService;
     private final CrawlerFactory crawlerFactory;
 
     @Autowired
-    public CrawlingExecutor(JobRepository jobRepository, StatusTypeRepository statusTypeRepository, CrawlerFactory crawlerFactory) {
-        this.jobRepository = jobRepository;
-        this.statusTypeRepository = statusTypeRepository;
+    public CrawlingExecutor(JobsService jobsService, StatusTypeService statusTypeService, CrawlerFactory crawlerFactory) {
+        this.jobsService = jobsService;
+        this.statusTypeService = statusTypeService;
         this.crawlerFactory = crawlerFactory;
     }
 
     public void executePendingJobs() {
-        List<Jobs> pendingJobs = jobRepository.findTop5ByStatusAliasOrderByPriorityAscCreatedAtAsc(StatusTypeEnum.PENDING.getType());
+        List<Jobs> pendingJobs = jobsService.findTop5PendingJobs(StatusTypeEnum.PENDING.getType());
         if (pendingJobs == null || pendingJobs.isEmpty()) {
             logger.info("No pending jobs found to execute.");
             return;
@@ -55,8 +55,8 @@ public class CrawlingExecutor {
 
     private void processCrawlingJobs(Jobs job) {
         try {
-            job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.CRAWLING_IN_PROGRESS.getType()));
-            jobRepository.save(job);
+            job.setStatus(statusTypeService.getStatusTypeByAlias(StatusTypeEnum.CRAWLING_IN_PROGRESS.getType()));
+            jobsService.saveJob(job);
             logger.info("Processing job: {}", job.getId());
 
             String domain = job.getSite().getDomain();
@@ -65,8 +65,8 @@ public class CrawlingExecutor {
             String crawlerClassname = job.getSite().getCrawlerClassName();
             if (crawlerClassname == null || crawlerClassname.isEmpty()) {
                 logger.error("No crawler class specified for job: {}", job.getId());
-                job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.CRAWLING_FAILED.getType()));
-                jobRepository.save(job);
+                job.setStatus(statusTypeService.getStatusTypeByAlias(StatusTypeEnum.CRAWLING_FAILED.getType()));
+                jobsService.saveJob(job);
                 return;
             }
 
@@ -75,8 +75,8 @@ public class CrawlingExecutor {
 
             if (crawler == null) {
                 logger.error("Failed to resolve crawler for job: {}", job.getId());
-                job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.CRAWLING_FAILED.getType()));
-                jobRepository.save(job);
+                job.setStatus(statusTypeService.getStatusTypeByAlias(StatusTypeEnum.CRAWLING_FAILED.getType()));
+                jobsService.saveJob(job);
                 return;
             }
 
@@ -85,8 +85,8 @@ public class CrawlingExecutor {
 
             if (!crawler.supports(job.getSite().getDomain())) {
                 logger.error("Crawler does not support the domain for job: {}", job.getId());
-                job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.CRAWLING_FAILED.getType()));
-                jobRepository.save(job);
+                job.setStatus(statusTypeService.getStatusTypeByAlias(StatusTypeEnum.CRAWLING_FAILED.getType()));
+                jobsService.saveJob(job);
                 return;
             }
 
@@ -94,17 +94,17 @@ public class CrawlingExecutor {
             logger.info("Crawl result for job {}: {}", job.getId(), crawlResult);
             if (crawlResult.isSuccess()) {
                 job.setPageSourcePath(crawlResult.getPageSourcePath());
-                job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.CRAWLING_COMPLETED.getType()));
+                job.setStatus(statusTypeService.getStatusTypeByAlias(StatusTypeEnum.CRAWLING_COMPLETED.getType()));
             } else {
                 logger.error("Crawling failed for job {}: {}", job.getId(), crawlResult.getMessage());
-                job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.CRAWLING_FAILED.getType()));
+                job.setStatus(statusTypeService.getStatusTypeByAlias(StatusTypeEnum.CRAWLING_FAILED.getType()));
             }
         } catch (Exception e) {
             // Handle exceptions specific to job processing
             logger.error("Error processing job {}: {}", job.getId(), e.getMessage());
-            job.setStatus(statusTypeRepository.findByAlias(StatusTypeEnum.CRAWLING_FAILED.getType()));
+            job.setStatus(statusTypeService.getStatusTypeByAlias(StatusTypeEnum.CRAWLING_FAILED.getType()));
         } finally {
-            jobRepository.save(job);
+            jobsService.saveJob(job);
             logger.info("Crawling job {} completed successfully.", job.getId());
         }
     }
