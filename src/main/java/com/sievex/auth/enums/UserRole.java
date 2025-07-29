@@ -1,18 +1,17 @@
 package com.sievex.auth.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum UserRole {
-    USER("user"),
-    MODERATOR("moderator"),
-    ADMIN("admin"),
-    SUPER_ADMIN("super_admin");
+    USER("ROLE_USER"),
+    ADMIN("ROLE_ADMIN"),
+    MODERATOR("ROLE_MODERATOR");
 
-    private final String value;
+    private final String role;
 
-    UserRole(String value) {
-        this.value = value;
+    UserRole(String role) {
+        this.role = role;
     }
 
-    public String getValue() {
-        return value;
-    }
 }

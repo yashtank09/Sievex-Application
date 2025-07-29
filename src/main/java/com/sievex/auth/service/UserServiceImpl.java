@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
         userData.setPhone(userRequestData.getPhone());
         userData.setPassword(userRequestData.getPassword());
         userData.setProfileCompleted(false);
-        userData.setRole(UserRole.USER.getValue());
+        userData.setRole(UserRole.USER.getRole());
         userData.setType(UserType.REGULAR.getValue());
         userData.setStatus(UserStatus.INACTIVE.getValue());
         return userData;
