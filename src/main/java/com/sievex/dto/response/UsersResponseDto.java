@@ -1,4 +1,4 @@
-package com.sievex.dto;
+package com.sievex.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
+public class UsersResponseDto {
     @JsonProperty("user-name")
     private String userName;
     @JsonProperty("email")
@@ -17,6 +17,10 @@ public class UserResponse {
     private String firstName;
     @JsonProperty("last-name")
     private String lastName;
+    @JsonProperty("password")
+    private String password;
+    @JsonProperty("role")
+    private String role;
     @JsonProperty("phone")
     private String phone;
 }

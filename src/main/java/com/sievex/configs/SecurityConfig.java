@@ -1,5 +1,6 @@
 package com.sievex.configs;
 
+import com.sievex.auth.enums.UserRole;
 import com.sievex.security.CustomJwtAuthenticationEntryPoint;
 import com.sievex.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class SecurityConfig {
                         .requestMatchers("/public/**").permitAll() // Allow other public endpoints if needed
                         .requestMatchers("/login/user").permitAll() // Allow data API endpoints
                         .requestMatchers("/actuator/**").permitAll() // Allow data API endpoints
+                        .requestMatchers("/jobs/**").hasAnyRole(UserRole.ADMIN.getRole(), UserRole.MODERATOR.getRole(), UserRole.USER.getRole())
                         .anyRequest().authenticated() // All other endpoints require authentication
                 )
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)) // Custom entry point for handling unauthorized access

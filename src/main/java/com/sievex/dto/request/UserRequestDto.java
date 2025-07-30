@@ -1,4 +1,4 @@
-package com.sievex.dto;
+package com.sievex.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -1,8 +1,8 @@
 package com.sievex.auth.service;
 
 import com.sievex.auth.repository.UserRepository;
-import com.sievex.dto.UserRequestDto;
-import com.sievex.dto.UserResponse;
+import com.sievex.dto.request.UserRequestDto;
+import com.sievex.dto.response.UsersResponseDto;
 import com.sievex.auth.entity.Users;
 import com.sievex.auth.enums.UserRole;
 import com.sievex.auth.enums.UserStatus;
@@ -45,20 +45,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse registerUser(UserRequestDto userRequestDto) {
+    public UsersResponseDto registerUser(UserRequestDto userRequestDto) {
         return setUserResponseData(userRepository.save(setRegisterUserData(userRequestDto)));
     }
 
     @Override
-    public UserResponse getUserProfile(HttpServletRequest request) {
+    public UsersResponseDto getUserProfile(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         String token = jwtUtil.extractTokenFromHeader(authHeader);
         String userName = jwtUtil.extractUserName(token);
         return setUserResponseData(userRepository.findByUserName(userName));
     }
 
-    private UserResponse setUserResponseData(Users save) {
-        UserResponse response = new UserResponse();
+    @Override
+    public UsersResponseDto findByUserName(String username) {
+        return setUserResponseData(userRepository.findByUserName(username));
+    }
+
+    private UsersResponseDto setUserResponseData(Users save) {
+        UsersResponseDto response = new UsersResponseDto();
         response.setUserName(save.getUserName());
         response.setEmail(save.getEmail());
         response.setFirstName(save.getFirstName());

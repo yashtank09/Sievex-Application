@@ -1,7 +1,7 @@
 package com.sievex.auth.controller;
 
 import com.sievex.dto.DataApiResponse;
-import com.sievex.dto.UserResponse;
+import com.sievex.dto.response.UsersResponseDto;
 import com.sievex.auth.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +30,8 @@ public class UserController {
      * @return ResponseEntity containing user profile data.
      */
     @GetMapping("/profile")
-    public ResponseEntity<DataApiResponse<UserResponse>> getUserProfile() {
-        UserResponse userResponse = userService.getUserProfile(request);
-        return new ResponseEntity<>(new DataApiResponse<>("success", 200, "User profile fetched successfully.", userResponse), HttpStatus.OK);
+    public ResponseEntity<DataApiResponse<UsersResponseDto>> getUserProfile() {
+        UsersResponseDto usersResponseDto = userService.getUserProfile(request);
+        return new ResponseEntity<>(new DataApiResponse<>("success", 200, "User profile fetched successfully.", usersResponseDto), HttpStatus.OK);
     }
 }
