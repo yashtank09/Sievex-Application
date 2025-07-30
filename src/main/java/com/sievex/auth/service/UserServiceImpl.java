@@ -69,6 +69,8 @@ public class UserServiceImpl implements UserService {
         response.setFirstName(save.getFirstName());
         response.setLastName(save.getLastName());
         response.setPhone(save.getPhone());
+        response.setPassword(save.getPassword());
+        response.setRole(save.getRole());
         return response;
     }
 
