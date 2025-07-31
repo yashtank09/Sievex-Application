@@ -2,8 +2,8 @@ package com.sievex.crawler.controller;
 
 import com.sievex.constants.ApiResponseConstants;
 import com.sievex.crawler.entity.Site;
-import com.sievex.crawler.repository.SiteTypeRepository;
 import com.sievex.crawler.service.SiteService;
+import com.sievex.crawler.service.SiteTypeService;
 import com.sievex.dto.DataApiResponse;
 import com.sievex.dto.request.SiteRequestDto;
 import com.sievex.dto.response.SiteResponseDto;
@@ -27,12 +27,12 @@ public class SiteController {
 
     // Autowire the SiteService
     private final SiteService siteService;
-    private SiteTypeRepository siteTypeRepository;
+    private final SiteTypeService siteTypeService;
 
     @Autowired
-    public SiteController(SiteService theSiteService, SiteTypeRepository theSiteTypeRepository) {
+    public SiteController(SiteService theSiteService, SiteTypeService siteTypeService) {
         siteService = theSiteService;
-        siteTypeRepository = theSiteTypeRepository;
+        this.siteTypeService = siteTypeService;
     }
 
     // DTO Mapper
@@ -59,7 +59,7 @@ public class SiteController {
             return null;
         }
         entity.setName(siteDto.getName());
-        entity.setSiteType(siteTypeRepository.findByAlias(siteDto.getSiteType()));
+        entity.setSiteType(siteTypeService.getSiteTypeByAlias(siteDto.getSiteType()));
         entity.setDomain(siteDto.getDomain());
         entity.setUrl(siteDto.getUrl());
         entity.setDescription(siteDto.getDescription());

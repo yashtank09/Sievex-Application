@@ -6,6 +6,7 @@ import com.sievex.dto.DataApiResponse;
 import com.sievex.dto.request.LoginRequest;
 import com.sievex.dto.request.UserRequestDto;
 import com.sievex.dto.response.UsersResponseDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,19 +21,20 @@ public class AuthController {
     private final UserService userService;
     private final JWTUtil jwtUtil;
 
+    @Autowired
     public AuthController(UserService userService, JWTUtil jwtUtil) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
     }
 
-    @PostMapping("/register")
+    @PostMapping("user/register")
     public ResponseEntity<DataApiResponse<UsersResponseDto>> registerUser(@RequestBody UserRequestDto userdata) {
         UsersResponseDto usersResponseDto = userService.registerUser(userdata);
         DataApiResponse<UsersResponseDto> response = new DataApiResponse<>("success", 200, "User registered successfully", usersResponseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("login/user")
+    @PostMapping("user/login")
     public ResponseEntity<DataApiResponse<UsersResponseDto>> login(@RequestBody LoginRequest loginRequest) {
         UsersResponseDto usersResponseDto = userService.findByUserName(loginRequest.getUsername());
         if (usersResponseDto == null || !usersResponseDto.getPassword().equals(loginRequest.getPassword())) {

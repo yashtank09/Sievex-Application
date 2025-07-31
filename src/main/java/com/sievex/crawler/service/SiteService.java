@@ -5,6 +5,7 @@ import java.util.List;
 
 public interface SiteService {
     Site saveSite(Site site);
+    Site findSiteByDomain(String domain);
 
     List<Site> getAllSites();
 

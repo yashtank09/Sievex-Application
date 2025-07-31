@@ -21,11 +21,13 @@ import java.util.Collections;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserRoleService userRoleService;
     private final JWTUtil jwtUtil;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, JWTUtil jwtUtil) {
+    public UserServiceImpl(UserRepository userRepository, UserRoleService userRoleService, JWTUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.userRoleService = userRoleService;
         this.jwtUtil = jwtUtil;
     }
 
@@ -38,7 +40,7 @@ public class UserServiceImpl implements UserService {
         userData.setPhone(userRequestData.getPhone());
         userData.setPassword(userRequestData.getPassword());
         userData.setProfileCompleted(false);
-        userData.setRole(UserRole.USER.getRole());
+        userData.setRole(userRoleService.getRoleByAlias(UserRole.USER.getRole()));
         userData.setType(UserType.REGULAR.getValue());
         userData.setStatus(UserStatus.INACTIVE.getValue());
         return userData;
@@ -69,8 +71,6 @@ public class UserServiceImpl implements UserService {
         response.setFirstName(save.getFirstName());
         response.setLastName(save.getLastName());
         response.setPhone(save.getPhone());
-        response.setPassword(save.getPassword());
-        response.setRole(save.getRole());
         return response;
     }
 

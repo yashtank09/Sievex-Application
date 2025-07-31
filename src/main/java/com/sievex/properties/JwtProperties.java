@@ -1,4 +1,4 @@
-package com.sievex.configs;
+package com.sievex.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

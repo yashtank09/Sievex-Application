@@ -41,8 +41,9 @@ public class Users {
     @Column(nullable = false)
     private String password;
 
-    @Column(length = 50)
-    private String role;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "m_users_roles", referencedColumnName = "id", nullable = false)
+    private UserRole role;
 
     @Column(length = 50)
     private String type;

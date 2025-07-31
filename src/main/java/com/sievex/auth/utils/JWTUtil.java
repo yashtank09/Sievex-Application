@@ -1,6 +1,6 @@
 package com.sievex.auth.utils;
 
-import com.sievex.configs.JwtProperties;
+import com.sievex.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

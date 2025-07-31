@@ -23,6 +23,11 @@ public class SiteServiceImpl implements SiteService {
     }
 
     @Override
+    public Site findSiteByDomain(String domain) {
+        return siteRepository.findByDomain(domain);
+    }
+
+    @Override
     public List<Site> getAllSites() {
         return siteRepository.findAll();
     }
