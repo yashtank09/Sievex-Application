@@ -64,6 +64,36 @@ public class UserServiceImpl implements UserService {
         return setUserResponseData(userRepository.findByUserName(username));
     }
 
+    @Override
+    public UsersResponseDto getUserByUserName(String username) {
+        return setUserResponseData(userRepository.findByUserName(username));
+    }
+
+    @Override
+    public UsersResponseDto getUserByUserNameOrEmail(String userName, String email) {
+        return setUserResponseData(userRepository.findByUserNameOrEmail(userName, email));
+    }
+
+    @Override
+    public boolean isUserExistByUserName(String userName) {
+        return userRepository.existsByUserName(userName);
+    }
+
+    @Override
+    public boolean isUserExistByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public boolean isUserExistByPhone(String phone) {
+        return userRepository.existsByPhone(phone);
+    }
+
+    @Override
+    public boolean isUserExistByUserNameOrEmail(String userName, String email) {
+        return userRepository.existsByUserNameOrEmail(userName, email);
+    }
+
     private UsersResponseDto setUserResponseData(Users save) {
         UsersResponseDto response = new UsersResponseDto();
         response.setUserName(save.getUserName());

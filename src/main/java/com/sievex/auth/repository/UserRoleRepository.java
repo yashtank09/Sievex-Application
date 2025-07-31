@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRoleRepository extends JpaRepository<UserRole, Long> {
     UserRole findByName(String name);
-    UserRole findByAlias(String alias);
     boolean existsByName(String name);
     boolean existsByAlias(String alias);
 }

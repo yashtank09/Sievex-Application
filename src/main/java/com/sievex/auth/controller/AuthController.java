@@ -29,9 +29,24 @@ public class AuthController {
 
     @PostMapping("user/register")
     public ResponseEntity<DataApiResponse<UsersResponseDto>> registerUser(@RequestBody UserRequestDto userdata) {
-        UsersResponseDto usersResponseDto = userService.registerUser(userdata);
-        DataApiResponse<UsersResponseDto> response = new DataApiResponse<>("success", 200, "User registered successfully", usersResponseDto);
+        DataApiResponse<UsersResponseDto> response = validateUserRegisterRequest(userdata);
+        if (response == null) {
+            UsersResponseDto usersResponseDto = userService.registerUser(userdata);
+            response = new DataApiResponse<>("success", 200, "User registered successfully.", usersResponseDto);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private DataApiResponse<UsersResponseDto> validateUserRegisterRequest(UserRequestDto usersResponseDto) {
+        if (userService.isUserExistByUserName(usersResponseDto.getUsername())) {
+            return new DataApiResponse<>("fail", 400, "User already exist with username " + usersResponseDto.getUsername());
+        } else if (userService.isUserExistByEmail(usersResponseDto.getEmail())) {
+            return new DataApiResponse<>("fail", 400, "User already exist with email " + usersResponseDto.getEmail());
+        } else if (userService.isUserExistByPhone(usersResponseDto.getPhone())) {
+            return new DataApiResponse<>("fail", 400, "User already exist with phone " + usersResponseDto.getPhone());
+        }
+        return null;
     }
 
     @PostMapping("user/login")
