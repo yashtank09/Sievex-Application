@@ -3,7 +3,7 @@ package com.sievex.constants;
 public class ApiResponseConstants {
     // ==== Status Indicators ====
     public static final String STATUS_SUCCESS = "SUCCESS";
-    public static final String STATUS_FAILURE = "FAILURE";
+    public static final String STATUS_FAILURE = "FAILED";
 
     // ==== HTTP Status Codes ====
     public static final int CODE_OK = 200;

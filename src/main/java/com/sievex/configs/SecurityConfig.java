@@ -27,6 +27,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // Allow auth endpoints (login, register)
+                        .requestMatchers("/api-docs/**").permitAll() // Allow auth endpoints (login, register)
+                        .requestMatchers("/swagger-ui.html").permitAll() // Allow auth endpoints (login, register)
                         .requestMatchers("/public/**").permitAll() // Allow other public endpoints if needed
                         .requestMatchers("/login/user").permitAll() // Allow data API endpoints
                         .requestMatchers("/actuator/**").permitAll() // Allow data API endpoints
