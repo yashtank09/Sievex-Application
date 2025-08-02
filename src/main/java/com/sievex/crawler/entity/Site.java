@@ -40,7 +40,7 @@ public class Site {
     private Boolean status = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "site_type_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "site_type_id", referencedColumnName = "id", nullable = false, foreignKey = @ForeignKey(name = "FK_m_sites_m_site_types"))
     @ToString.Exclude
     private SiteType siteType;
 

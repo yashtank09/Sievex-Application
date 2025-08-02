@@ -21,11 +21,11 @@ public class JobLogs {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "job_id", nullable = false)
+    @JoinColumn(name = "job_id", nullable = false, foreignKey = @ForeignKey(name = "FK_job_logs_jobs"))
     private Jobs job;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_type_id")
+    @JoinColumn(name = "status_type_id", nullable = false, foreignKey = @ForeignKey(name = "FK_job_logs_status_types"))
     private StatusType statusType;
 
     @Column(columnDefinition = "TEXT")

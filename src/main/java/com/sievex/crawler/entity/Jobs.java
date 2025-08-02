@@ -29,15 +29,15 @@ public class Jobs {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "job_type_id", nullable = false)
+    @JoinColumn(name = "job_type_id", nullable = false, foreignKey = @ForeignKey(name = "FK_m_jobs_m_job_types"))
     private JobType jobTypeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "site_id")
+    @JoinColumn(name = "site_id", nullable = false, foreignKey = @ForeignKey(name = "FK_m_jobs_m_sites"))
     private Site site;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_id", nullable = false)
+    @JoinColumn(name = "status_id", nullable = false, foreignKey = @ForeignKey(name = "FK_m_jobs_m_status_types"))
     private StatusType status;
 
     private int priority;
