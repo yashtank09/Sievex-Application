@@ -1,0 +1,81 @@
+package com.sievex.auth.service.impl;
+
+import com.sievex.auth.service.AuthService;
+import com.sievex.auth.service.UserService;
+import com.sievex.auth.utils.JWTUtil;
+import com.sievex.dto.request.LoginRequest;
+import com.sievex.dto.response.JwtResponse;
+import com.sievex.dto.response.UsersResponseDto;
+import com.sievex.exception.AuthenticationFailedException;
+import lombok.Data;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Data
+@Service
+@Transactional
+public class AuthServiceImpl implements AuthService {
+
+    private final AuthenticationManager authenticationManager;
+    private final UserService userService;
+    private final JWTUtil jwtUtil;
+
+    public AuthServiceImpl(AuthenticationManager authenticationManager,
+                          UserService userService,
+                          JWTUtil jwtUtil) {
+        this.authenticationManager = authenticationManager;
+        this.userService = userService;
+        this.jwtUtil = jwtUtil;
+    }
+
+    @Override
+    public JwtResponse authenticateUser(LoginRequest loginRequest) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(),
+                            loginRequest.getPassword()
+                    )
+            );
+        } catch (BadCredentialsException e) {
+            throw new AuthenticationFailedException("Invalid Username or password");
+        } catch (AuthenticationServiceException e) {
+            throw new AuthenticationServiceException("Authentication failed!");
+        }
+
+        // Fetch user to get role (since Authentication might not contain custom fields)
+        UsersResponseDto user = userService.getUserByUserName(loginRequest.getUsername());
+
+        String token = generateJwtToken(user.getUserName());
+
+        return new JwtResponse(token, user);
+    }
+
+    @Override
+    public void validateUserCredentials(String username, String password) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, password)
+            );
+        } catch (AuthenticationException ex) {
+            throw new AuthenticationFailedException("Invalid username or password");
+        }
+    }
+
+    @Override
+        public String generateJwtToken(String username) {
+        UsersResponseDto user = userService.getUserByUserName(username);
+        return jwtUtil.generateToken(user.getUserName(), user.getRole());
+    }
+
+    @Override
+    public void invalidateToken(String token) {
+        // Add token to blacklist or mark as invalid in database
+        // Implementation depends on your requirements
+    }
+}

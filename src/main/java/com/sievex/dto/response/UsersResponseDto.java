@@ -17,10 +17,10 @@ public class UsersResponseDto {
     private String firstName;
     @JsonProperty("last-name")
     private String lastName;
-    @JsonProperty("password")
-    private String password;
     @JsonProperty("role")
     private String role;
     @JsonProperty("phone")
     private String phone;
+    @JsonProperty("is-profile-completed")
+    private boolean profileCompleted;
 }

@@ -1,7 +1,9 @@
-package com.sievex.auth.service;
+package com.sievex.auth.service.impl;
 
 import com.sievex.auth.repository.UserRepository;
-import com.sievex.dto.request.UserRequestDto;
+import com.sievex.auth.service.UserRoleService;
+import com.sievex.auth.service.UserService;
+import com.sievex.dto.request.UserRegistrationRequestDto;
 import com.sievex.dto.response.UsersResponseDto;
 import com.sievex.auth.entity.Users;
 import com.sievex.auth.enums.UserRole;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -23,32 +26,47 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserRoleService userRoleService;
     private final JWTUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserRoleService userRoleService, JWTUtil jwtUtil) {
+    public UserServiceImpl(UserRepository userRepository, UserRoleService userRoleService, JWTUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userRoleService = userRoleService;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    private Users setRegisterUserData(UserRequestDto userRequestData) {
-        Users userData = new Users();
-        userData.setUserName(userRequestData.getUsername());
-        userData.setEmail(userRequestData.getEmail());
-        userData.setFirstName(userRequestData.getFirstName());
-        userData.setLastName(userRequestData.getLastName());
-        userData.setPhone(userRequestData.getPhone());
-        userData.setPassword(userRequestData.getPassword());
-        userData.setProfileCompleted(false);
-        userData.setRole(userRoleService.getRoleByAlias(UserRole.USER.getRole()));
-        userData.setType(UserType.REGULAR.getValue());
-        userData.setStatus(UserStatus.INACTIVE.getValue());
-        return userData;
+    private Users prepareUserEntity(UserRegistrationRequestDto dto, UserRole role) {
+        Users user = new Users();
+        user.setUserName(dto.getUsername());
+        user.setEmail(dto.getEmail());
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setPhone(dto.getPhone());
+        user.setPassword(passwordEncoder.encode(dto.getPassword())); // Make sure to encode this!
+        user.setProfileCompleted(false);
+        user.setRole(userRoleService.getRoleByAlias(role.getRole()));
+        user.setType(UserType.REGULAR.getValue());
+        user.setStatus(UserStatus.INACTIVE.getValue());
+        return user;
     }
 
     @Override
-    public UsersResponseDto registerUser(UserRequestDto userRequestDto) {
-        return setUserResponseData(userRepository.save(setRegisterUserData(userRequestDto)));
+    public UsersResponseDto registerRegularUser(UserRegistrationRequestDto dto) {
+        Users user = prepareUserEntity(dto, UserRole.USER);
+        return setUserResponseData(userRepository.save(user));
+    }
+
+    @Override
+    public UsersResponseDto registerModerator(UserRegistrationRequestDto dto) {
+        Users user = prepareUserEntity(dto, UserRole.MODERATOR);
+        return setUserResponseData(userRepository.save(user));
+    }
+
+    @Override
+    public UsersResponseDto registerAdmin(UserRegistrationRequestDto dto) {
+        Users user = prepareUserEntity(dto, UserRole.ADMIN);
+        return setUserResponseData(userRepository.save(user));
     }
 
     @Override
@@ -76,22 +94,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isUserExistByUserName(String userName) {
-        return userRepository.existsByUserName(userName);
+        return userName != null && userRepository.existsByUserName(userName.toLowerCase());
     }
 
     @Override
     public boolean isUserExistByEmail(String email) {
-        return userRepository.existsByEmail(email);
+        return email != null && userRepository.existsByEmail(email.toLowerCase());
     }
 
     @Override
     public boolean isUserExistByPhone(String phone) {
-        return userRepository.existsByPhone(phone);
+        return phone != null && userRepository.existsByPhone(phone.trim());
     }
 
     @Override
     public boolean isUserExistByUserNameOrEmail(String userName, String email) {
-        return userRepository.existsByUserNameOrEmail(userName, email);
+        return (userName != null && isUserExistByUserName(userName)) || 
+               (email != null && isUserExistByEmail(email));
     }
 
     private UsersResponseDto setUserResponseData(Users save) {

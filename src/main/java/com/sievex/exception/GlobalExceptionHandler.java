@@ -1,11 +1,13 @@
 package com.sievex.exception;
 
+import com.sievex.constants.ApiResponseConstants;
 import com.sievex.dto.DataApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.naming.AuthenticationException;
 import java.nio.file.AccessDeniedException;
 
 @ControllerAdvice
@@ -21,20 +23,26 @@ public class GlobalExceptionHandler {
     // }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<DataApiResponse> handleRuntimeException(RuntimeException ex) {
-        DataApiResponse<String> response = new DataApiResponse<>("error", 500, "Something went wrong: " + ex.getMessage());
+    public ResponseEntity<DataApiResponse<String>> handleRuntimeException(RuntimeException ex) {
+        DataApiResponse<String> response = new DataApiResponse<>(ApiResponseConstants.STATUS_ERROR, 500, "Something went wrong: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<DataApiResponse> handleAccessDeniedException(AccessDeniedException ex) {
-        DataApiResponse<String> response = new DataApiResponse<>("error",403,"Access Denied: " + ex.getMessage());
+    public ResponseEntity<DataApiResponse<String>> handleAccessDeniedException(AccessDeniedException ex) {
+        DataApiResponse<String> response = new DataApiResponse<>(ApiResponseConstants.STATUS_ERROR,403,"Access Denied: " + ex.getMessage());
         return ResponseEntity.status(403).body(response);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<DataApiResponse> handleGenericException(Exception ex) {
-        DataApiResponse<String> response = new DataApiResponse<>("error", 500, "Unhandled Exception: " + ex.getMessage());
+    public ResponseEntity<DataApiResponse<String>> handleGenericException(Exception ex) {
+        DataApiResponse<String> response = new DataApiResponse<>(ApiResponseConstants.STATUS_ERROR, 500, "Unhandled Exception: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<DataApiResponse<String>> handleAuthFailed(Exception ex) {
+        DataApiResponse<String> response = new DataApiResponse<>(ApiResponseConstants.STATUS_ERROR, HttpStatus.UNAUTHORIZED.value(), "Unauthorized Exception: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 }

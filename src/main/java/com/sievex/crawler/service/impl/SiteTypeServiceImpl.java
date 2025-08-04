@@ -1,7 +1,8 @@
-package com.sievex.crawler.service;
+package com.sievex.crawler.service.impl;
 
 import com.sievex.crawler.entity.SiteType;
 import com.sievex.crawler.repository.SiteTypeRepository;
+import com.sievex.crawler.service.SiteTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

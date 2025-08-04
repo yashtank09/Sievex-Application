@@ -4,6 +4,7 @@ public class ApiResponseConstants {
     // ==== Status Indicators ====
     public static final String STATUS_SUCCESS = "SUCCESS";
     public static final String STATUS_FAILURE = "FAILED";
+    public static final String STATUS_ERROR = "ERROR";
 
     // ==== HTTP Status Codes ====
     public static final int CODE_OK = 200;
