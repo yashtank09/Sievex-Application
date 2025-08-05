@@ -10,7 +10,7 @@ public class LoginRequest {
     @Schema(description = "Username of the user", example = "john.doe")
     @JsonProperty("user-name")
     private String username;
-    @Schema(description = "Password of the user", example = "yourSecurePassword123!", format = "password")
+    @Schema(description = "Password of the user", example = "securePassword123!", format = "password")
     @JsonProperty("password")
     private String password;
 }
