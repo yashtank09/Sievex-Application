@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,9 +25,10 @@ public class JWTUtil {
         this.jwtProperties = jwtProperties;
     }
 
-    public String generateToken(String userName, String role) {
+    public String generateToken(String userName, String role, String email) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
+        claims.put("email", email);
         return createToken(claims, userName);
     }
 
@@ -39,9 +41,13 @@ public class JWTUtil {
         return createToken(new HashMap<>(), email);
     }
 
-    public String extractUserName(String token) {
+    public String extractUserName(@NotNull String token) {
         // Implement logic to extract email from the token
         return extractAllClaims(token).getSubject();
+    }
+
+    public String extractEmail(String token) {
+        return extractAllClaims(token).get("email").toString();
     }
 
     public String extractRole(String token) {
@@ -67,5 +73,9 @@ public class JWTUtil {
             return authHeader.substring(7);
         }
         throw new IllegalArgumentException("Invalid Authorization header");
+    }
+
+    public Date extractExpirationTime(String token) {
+        return extractAllClaims(token).getExpiration();
     }
 }

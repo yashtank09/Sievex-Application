@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * Generic API response wrapper for all API responses
+ *
  * @param <T> Type of the data being returned in the response
  */
 @Data
@@ -15,28 +16,27 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Standard API response wrapper containing status, message, and optional data")
 public class DataApiResponse<T> {
-    @Schema(description = "Status of the API response (e.g., 'success', 'error')", 
-            example = "success", 
+    @Schema(description = "Status of the API response (e.g., 'success', 'error')",
+            example = "success",
             allowableValues = {"success", "error"})
     @JsonProperty("status")
     private String status;
-    
+
     @Schema(description = "HTTP status code of the response", example = "200")
     @JsonProperty("status_code")
     private int statusCode;
-    
-    @Schema(description = "Human-readable message describing the response", 
+
+    @Schema(description = "Human-readable message describing the response",
             example = "Operation completed successfully")
     @JsonProperty("status_message")
     private String statusMessage;
 
-    @Schema(description = "JWT token for authenticated requests (if applicable)", 
-            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-            required = false)
+    @Schema(description = "JWT token for authenticated requests (if applicable)",
+            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
     @JsonProperty("token")
     private String token;
 
-    @Schema(description = "The actual data payload of the response (if any)", 
+    @Schema(description = "The actual data payload of the response (if any)",
             nullable = true)
     @JsonProperty("data")
     private T data;

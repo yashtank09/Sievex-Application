@@ -1,6 +1,7 @@
 package com.sievex.auth.service.impl;
 
 import com.sievex.auth.service.AuthService;
+import com.sievex.auth.service.TokenService;
 import com.sievex.auth.service.UserService;
 import com.sievex.auth.utils.JWTUtil;
 import com.sievex.dto.request.LoginRequest;
@@ -8,6 +9,7 @@ import com.sievex.dto.response.JwtResponse;
 import com.sievex.dto.response.UsersResponseDto;
 import com.sievex.exception.AuthenticationFailedException;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,6 +17,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 @Data
 @Service
@@ -24,13 +28,16 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final JWTUtil jwtUtil;
+    private final TokenService tokenService;
 
+    @Autowired
     public AuthServiceImpl(AuthenticationManager authenticationManager,
-                          UserService userService,
-                          JWTUtil jwtUtil) {
+                           UserService userService,
+                           JWTUtil jwtUtil, TokenService tokenService) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.jwtUtil = jwtUtil;
+        this.tokenService = tokenService;
     }
 
     @Override
@@ -70,12 +77,21 @@ public class AuthServiceImpl implements AuthService {
     @Override
         public String generateJwtToken(String username) {
         UsersResponseDto user = userService.getUserByUserName(username);
-        return jwtUtil.generateToken(user.getUserName(), user.getRole());
+        return jwtUtil.generateToken(user.getUserName(), user.getRole(), user.getEmail());
     }
 
     @Override
     public void invalidateToken(String token) {
-        // Add token to blacklist or mark as invalid in database
-        // Implementation depends on your requirements
+        // Add token to blacklist or mark as invalid in Redis
+        // Remove 'Bearer ' prefix if present
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        // Get token expiration time and blacklist the token
+        Date expirationTime = jwtUtil.extractExpirationTime(token);
+        if (!jwtUtil.isTokenExpired(token)) {
+            tokenService.blacklistToken(token, expirationTime.getTime());
+        }
     }
 }

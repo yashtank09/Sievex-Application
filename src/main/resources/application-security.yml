@@ -1,0 +1,15 @@
+security:
+  public-endpoints:
+    - /auth/**
+    - /api-docs/**
+    - /swagger-ui/**
+    - /swagger-ui.html
+    - /public/**
+    - /login
+    - /logout
+    - /actuator/**
+  admin-endpoints:
+    - /admin/**
+  user-endpoints:
+    - /jobs/**
+    - /api/user/**

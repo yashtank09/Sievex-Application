@@ -31,7 +31,8 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui.html").permitAll() // Allow auth endpoints (login, register)
                         .requestMatchers("/swagger-ui/**").permitAll() // Allow auth endpoints (login, register)
                         .requestMatchers("/public/**").permitAll() // Allow other public endpoints if needed
-                        .requestMatchers("/login/user").permitAll() // Allow data API endpoints
+                        .requestMatchers("/login").permitAll() // Allow data API endpoints
+                        .requestMatchers("/logout").permitAll() // Allow data API endpoints
                         .requestMatchers("/actuator/**").permitAll() // Allow data API endpoints
                         .requestMatchers("/jobs/**").hasAnyRole(UserRole.ADMIN.getRole(), UserRole.MODERATOR.getRole(), UserRole.USER.getRole())
                         .anyRequest().authenticated() // All other endpoints require authentication
