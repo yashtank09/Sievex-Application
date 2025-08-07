@@ -12,11 +12,11 @@ public class TokenServiceImpl implements TokenService {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String BLACKLIST_PREFIX = "blacklist:";
+
     @Autowired
     public TokenServiceImpl(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
-
 
     @Override
     public void blacklistToken(String token, long expirationTime) {
@@ -35,7 +35,10 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public boolean isTokenBlacklisted(String token) {
-        Boolean isBlacklisted = (Boolean) redisTemplate.opsForValue().get(BLACKLIST_PREFIX + token);
-        return Boolean.TRUE.equals(isBlacklisted);
+        Object isBlacklisted = redisTemplate.opsForValue().get(BLACKLIST_PREFIX + token);
+        if (isBlacklisted == null) {
+            return false;
+        }
+        return isBlacklisted.equals("blacklisted");
     }
 }
