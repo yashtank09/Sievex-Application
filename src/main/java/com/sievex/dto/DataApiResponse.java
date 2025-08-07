@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 /**
  * Generic API response wrapper for all API responses
  *
@@ -41,17 +43,27 @@ public class DataApiResponse<T> {
     @JsonProperty("data")
     private T data;
 
+    @Schema(description = "Details about error, if the response is an error")
+    @JsonProperty("error")
+    private ErrorDetails error;
+
+    @Schema(description = "Timestamp of the API response (UTC)")
+    @JsonProperty("timestamp")
+    private Instant timestamp = Instant.now(); // Default value is now()
+
     public DataApiResponse(String status, int statusCode, String statusMessage, T data) {
         this.status = status;
         this.statusCode = statusCode;
         this.statusMessage = statusMessage;
         this.data = data;
+        this.timestamp = Instant.now();
     }
 
     public DataApiResponse(String status, int statusCode, String statusMessage) {
         this.status = status;
         this.statusCode = statusCode;
         this.statusMessage = statusMessage;
+        this.timestamp = Instant.now();
     }
 
     public DataApiResponse(String status, int statusCode, String statusMessage, String token, T data) {
@@ -59,6 +71,15 @@ public class DataApiResponse<T> {
         this.statusCode = statusCode;
         this.statusMessage = statusMessage;
         this.token = token;
+        this.timestamp = Instant.now();
         this.data = data;
+    }
+
+    public DataApiResponse(String status, int statusCode, String statusMessage, ErrorDetails error) {
+        this.status = status;
+        this.statusCode = statusCode;
+        this.statusMessage = statusMessage;
+        this.error = error;
+        this.timestamp = Instant.now();
     }
 }
