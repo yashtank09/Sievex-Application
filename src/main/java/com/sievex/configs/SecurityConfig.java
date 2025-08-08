@@ -1,6 +1,7 @@
 package com.sievex.configs;
 
 import com.sievex.auth.enums.UserRole;
+import com.sievex.auth.service.SecurityConfigService;
 import com.sievex.security.CustomJwtAuthenticationEntryPoint;
 import com.sievex.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -14,28 +15,42 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.List;
+
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomJwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final SecurityConfigService securityConfigService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // Allow auth endpoints (login, register)
-                        .requestMatchers("/api-docs/**").permitAll() // Allow auth endpoints (login, register)
-                        .requestMatchers("/swagger-ui.html").permitAll() // Allow auth endpoints (login, register)
-                        .requestMatchers("/swagger-ui/**").permitAll() // Allow auth endpoints (login, register)
-                        .requestMatchers("/public/**").permitAll() // Allow other public endpoints if needed
-                        .requestMatchers("/login").permitAll() // Allow data API endpoints
-                        .requestMatchers("/logout").permitAll() // Allow data API endpoints
-                        .requestMatchers("/actuator/**").permitAll() // Allow data API endpoints
-                        .requestMatchers("/jobs/**").hasAnyRole(UserRole.ADMIN.getRole(), UserRole.MODERATOR.getRole(), UserRole.USER.getRole())
-                        .anyRequest().authenticated() // All other endpoints require authentication
+                .authorizeHttpRequests(auth ->
+                        {
+                            List<String> publicPaths = securityConfigService.getPublicPaths();
+                            if (!publicPaths.isEmpty()) {
+                                auth.requestMatchers(publicPaths.toArray(new String[0])).permitAll();
+                            }
+
+                            List<String> adminPaths = securityConfigService.getAdminPaths();
+                            if (!adminPaths.isEmpty()) {
+                                auth.requestMatchers(publicPaths.toArray(new String[0])).hasAnyRole(UserRole.ADMIN.getRole());
+                            }
+
+                            List<String> moderatorPaths = securityConfigService.getAdminPaths();
+                            if (!moderatorPaths.isEmpty()) {
+                                auth.requestMatchers(publicPaths.toArray(new String[0])).hasAnyRole(UserRole.ADMIN.getRole(), UserRole.MODERATOR.getRole());
+                            }
+
+                            List<String> userPaths = securityConfigService.getUserPaths();
+                            if (!userPaths.isEmpty()) {
+                                auth.requestMatchers(publicPaths.toArray(new String[0])).hasAnyRole(UserRole.USER.getRole(), UserRole.MODERATOR.getRole(), UserRole.ADMIN.getRole());
+                            }
+                        }
                 )
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)) // Custom entry point for handling unauthorized access
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session management

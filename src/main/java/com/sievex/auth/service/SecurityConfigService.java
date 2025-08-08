@@ -1,4 +1,4 @@
-package com.sievex.auth.service.impl;
+package com.sievex.auth.service;
 
 import com.sievex.auth.entity.SecurityConfigurations;
 import com.sievex.auth.enums.AccessLevel;
@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class SecurityConfigurationService {
+public class SecurityConfigService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SecurityConfigurationService.class);
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfigService.class);
 
     private final SecurityConfigurationRepository securityConfigurationRepository;
     private List<SecurityConfigurations> cachedConfigs;
@@ -26,7 +26,9 @@ public class SecurityConfigurationService {
     @PostConstruct
     @Scheduled(fixedRate = 60000)
     public void loadConfigs() {
+        logger.info("Loading security configurations from database");
         cachedConfigs = securityConfigurationRepository.findAll();
+        logger.info("Loaded {} security configurations", cachedConfigs.size());
     }
 
     /**
@@ -38,10 +40,26 @@ public class SecurityConfigurationService {
     }
 
     /**
+     * Get paths for public access level
+     * @return List of public paths
+     */
+    public List<String> getPublicPaths() {
+        return getPathsByAccessLevel(AccessLevel.PUBLIC);
+    }
+
+    /**
+     * Get paths for user access level
+     * @return List of user paths
+     */
+    public List<String> getUserPaths() {
+        return getPathsByAccessLevel(AccessLevel.USER);
+    }
+
+    /**
      * Get paths for super admin access level
      * @return List of super admin paths
      */
-    public List<String> getSuperAdminPaths() {
+    public List<String> getAdminPaths() {
         return getPathsByAccessLevel(AccessLevel.SUPER_ADMIN);
     }
 

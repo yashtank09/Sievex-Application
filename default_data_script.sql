@@ -28,3 +28,30 @@ INSERT INTO m_user_roles (alias, name, description, status, created_at, updated_
 VALUES ('user', 'USER', 'USER role', 1, NOW(6), NOW(6)),
        ('admin', 'ADMIN', 'ADMIN role', 1, NOW(6), NOW(6)),
        ('moderator', 'MODERATOR', 'MODERATOR role', 1, NOW(6), NOW(6));
+
+
+-- Public endpoints
+INSERT INTO security_configurations (path, access_level, is_active, description, created_at)
+VALUES
+('/auth/**', 'PUBLIC', true, 'Authentication endpoints', NOW()),
+('/api-docs/**', 'PUBLIC', true, 'API documentation', NOW()),
+('/swagger-ui/**', 'PUBLIC', true, 'Swagger UI', NOW()),
+('/swagger-ui.html', 'PUBLIC', true, 'Swagger UI HTML', NOW()),
+('/public/**', 'PUBLIC', true, 'Public resources', NOW()),
+('/login', 'PUBLIC', true, 'Login endpoint', NOW()),
+('/logout', 'PUBLIC', true, 'Logout endpoint', NOW()),
+('/actuator/**', 'PUBLIC', true, 'Actuator endpoints', NOW());
+
+-- User endpoints
+INSERT INTO security_configurations (path, access_level, is_active, description, created_at)
+VALUES
+('/api/user/profile', 'USER', true, 'User profile endpoint', NOW()),
+('/api/user/settings', 'USER', true, 'User settings', NOW()),
+('/jobs/**', 'USER', true, 'Job related endpoints', NOW());
+
+-- Admin endpoints
+INSERT INTO security_configurations (path, access_level, is_active, description, created_at)
+VALUES
+('/admin/**', 'ADMIN', true, 'Admin dashboard and tools', NOW()),
+('/api/admin/users', 'ADMIN', true, 'User management', NOW()),
+('/api/admin/reports', 'ADMIN', true, 'System reports', NOW());

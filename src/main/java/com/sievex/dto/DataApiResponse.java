@@ -3,6 +3,8 @@ package com.sievex.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +17,8 @@ import java.time.Instant;
  */
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Standard API response wrapper containing status, message, and optional data")
 public class DataApiResponse<T> {
@@ -43,9 +47,11 @@ public class DataApiResponse<T> {
     @JsonProperty("data")
     private T data;
 
+    /*
     @Schema(description = "Details about error, if the response is an error")
     @JsonProperty("error")
     private ErrorDetails error;
+     */
 
     @Schema(description = "Timestamp of the API response (UTC)")
     @JsonProperty("timestamp")
@@ -75,6 +81,7 @@ public class DataApiResponse<T> {
         this.data = data;
     }
 
+    /*
     public DataApiResponse(String status, int statusCode, String statusMessage, ErrorDetails error) {
         this.status = status;
         this.statusCode = statusCode;
@@ -82,4 +89,25 @@ public class DataApiResponse<T> {
         this.error = error;
         this.timestamp = Instant.now();
     }
+
+    public static <T> DataApiResponse<T> success(int statusCode, String message, T data) {
+        return DataApiResponse.<T>builder()
+                .status("success")
+                .statusCode(statusCode)
+                .statusMessage(message)
+                .data(data)
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    public static <T> DataApiResponse<T> error(int statusCode, String message, ErrorDetails error) {
+        return DataApiResponse.<T>builder()
+                .status("error")
+                .statusCode(statusCode)
+                .statusMessage(message)
+                .error(error)
+                .timestamp(Instant.now())
+                .build();
+    }
+    */
 }

@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-// @EnableScheduling // Enable scheduling for periodic job execution
+@EnableScheduling // Enable scheduling for periodic job execution
 public class SievexApplication {
 
 	public static void main(String[] args) {
