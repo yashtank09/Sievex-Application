@@ -1,10 +1,9 @@
 package com.sievex.auth.utils;
 
 import com.sievex.properties.JwtProperties;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -65,7 +64,14 @@ public class JWTUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)).build().parseClaimsJws(token).getBody();
+        if (token == null || token.trim().isEmpty()) {
+            throw new MalformedJwtException("Token cannot be null or empty");
+        }
+        try {
+            return Jwts.parserBuilder().setSigningKey(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)).build().parseClaimsJws(token).getBody();
+        } catch (Exception e) {
+            throw new JwtException("Invalid token: " + e.getMessage(), e);
+        }
     }
 
     public String extractTokenFromHeader(String authHeader) {
@@ -77,5 +83,11 @@ public class JWTUtil {
 
     public Date extractExpirationTime(String token) {
         return extractAllClaims(token).getExpiration();
+    }
+
+    public void validateTokenFormat(String token) {
+        if (token.isEmpty() || token.split("\\.").length != 3) {
+            throw new MalformedJwtException("JWT structure is invalid");
+        }
     }
 }

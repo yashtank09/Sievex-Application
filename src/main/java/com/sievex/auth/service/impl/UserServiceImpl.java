@@ -122,6 +122,7 @@ public class UserServiceImpl implements UserService {
         response.setEmail(save.getEmail());
         response.setFirstName(save.getFirstName());
         response.setLastName(save.getLastName());
+        response.setRole(save.getRole().getName());
         response.setPhone(save.getPhone());
         return response;
     }
@@ -134,6 +135,7 @@ public class UserServiceImpl implements UserService {
         }
 
         String role = "ROLE_" + user.getRole().getName();
+        // String role = user.getRole().getName();
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
 
         return new User(user.getUserName(), user.getPassword(), authorities);

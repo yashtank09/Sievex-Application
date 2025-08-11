@@ -38,17 +38,17 @@ public class SecurityConfig {
 
                             List<String> adminPaths = securityConfigService.getAdminPaths();
                             if (!adminPaths.isEmpty()) {
-                                auth.requestMatchers(publicPaths.toArray(new String[0])).hasAnyRole(UserRole.ADMIN.getRole());
+                                auth.requestMatchers(adminPaths.toArray(new String[0])).hasAnyRole(UserRole.ADMIN.getRole());
                             }
 
-                            List<String> moderatorPaths = securityConfigService.getAdminPaths();
+                            List<String> moderatorPaths = securityConfigService.getModeratorPaths();
                             if (!moderatorPaths.isEmpty()) {
-                                auth.requestMatchers(publicPaths.toArray(new String[0])).hasAnyRole(UserRole.ADMIN.getRole(), UserRole.MODERATOR.getRole());
+                                auth.requestMatchers(moderatorPaths.toArray(new String[0])).hasAnyRole(UserRole.ADMIN.getRole(), UserRole.MODERATOR.getRole());
                             }
 
                             List<String> userPaths = securityConfigService.getUserPaths();
                             if (!userPaths.isEmpty()) {
-                                auth.requestMatchers(publicPaths.toArray(new String[0])).hasAnyRole(UserRole.USER.getRole(), UserRole.MODERATOR.getRole(), UserRole.ADMIN.getRole());
+                                auth.requestMatchers(userPaths.toArray(new String[0])).hasAnyRole(UserRole.USER.getRole(), UserRole.MODERATOR.getRole(), UserRole.ADMIN.getRole());
                             }
                         }
                 )

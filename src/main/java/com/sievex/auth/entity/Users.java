@@ -42,7 +42,7 @@ public class Users {
     @Column(nullable = false)
     private String password;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "m_users_roles", referencedColumnName = "id", nullable = false, foreignKey = @ForeignKey(name = "FK_m_users_m_users_roles"))
     private UserRole role;
 

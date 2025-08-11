@@ -3,6 +3,7 @@ package com.sievex.security;
 import com.sievex.auth.service.TokenService;
 import com.sievex.auth.service.UserService;
 import com.sievex.auth.utils.JWTUtil;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,37 +37,57 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        // Skip JWT check for login endpoint
+        if (isLoginRequest(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authHeader = request.getHeader("Authorization");
-        String jwtToken = null;
-        String userName = null;
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        // No token — just continue without setting authentication
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-            jwtToken = authHeader.substring(7);
+        String jwtToken = authHeader.substring(7).trim();
+        String userName;
 
-            // First check if token is blacklisted
+        try {
+            jwtUtil.validateTokenFormat(jwtToken);
+
             if (tokenService.isTokenBlacklisted(jwtToken)) {
-                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Token has been invalidated");
+                throw new MalformedJwtException("Token has been invalidated");
             }
 
-            // Then extract username and validate token
             userName = jwtUtil.extractUserName(jwtToken);
+        } catch (MalformedJwtException e) {
+            logger.warn("Malformed JWT: {}", e);
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid or malformed JWT token");
+            return;
+        } catch (Exception e) {
+            logger.error("JWT processing failed", e);
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Authentication failed due to invalid token");
+            return;
         }
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwtToken = authHeader.substring(7);
-            userName = jwtUtil.extractUserName(jwtToken);
-        }
-
+        // Set authentication if valid
         if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userService.loadUserByUsername(userName);
             if (jwtUtil.isTokenValid(jwtToken, userDetails.getUsername())) {
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
-        filterChain.doFilter(request, response);
 
+        filterChain.doFilter(request, response);
+    }
+
+    private boolean isLoginRequest(HttpServletRequest request) {
+        return request.getRequestURI().contains("/login") && request.getMethod().equalsIgnoreCase("POST");
     }
 }

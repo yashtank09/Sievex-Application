@@ -5,6 +5,7 @@ import com.sievex.constants.ApiResponseConstants;
 import com.sievex.dto.DataApiResponse;
 import com.sievex.dto.request.LoginRequest;
 import com.sievex.dto.response.JwtResponse;
+import com.sievex.dto.response.UsersResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -38,9 +39,9 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials",
                     content = @Content(schema = @Schema(implementation = DataApiResponse.class)))
     })
-    public ResponseEntity<DataApiResponse<JwtResponse>> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<DataApiResponse<UsersResponseDto>> login(@RequestBody LoginRequest loginRequest) {
         JwtResponse jwtResponse = authService.authenticateUser(loginRequest);
-        return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_SUCCESS, ApiResponseConstants.CODE_OK, "Login successful", jwtResponse), HttpStatus.OK);
+        return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_SUCCESS, ApiResponseConstants.CODE_OK, "Login successful", jwtResponse.getToken(), jwtResponse.getUser()), HttpStatus.OK);
     }
 
     @PostMapping("user/logout")

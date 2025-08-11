@@ -60,7 +60,7 @@ public class SecurityConfigService {
      * @return List of super admin paths
      */
     public List<String> getAdminPaths() {
-        return getPathsByAccessLevel(AccessLevel.SUPER_ADMIN);
+        return getPathsByAccessLevel(AccessLevel.ADMIN);
     }
 
     /**
