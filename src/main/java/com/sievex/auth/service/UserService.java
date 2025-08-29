@@ -17,5 +17,6 @@ public interface UserService extends UserDetailsService {
     public boolean isUserExistByEmail(String email);
     public boolean isUserExistByPhone(String phone);
     public boolean isUserExistByUserNameOrEmail(String userName, String email);
+    public void updateUserPassword(String userName, String newPassword);
 
 }

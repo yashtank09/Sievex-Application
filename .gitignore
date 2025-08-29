@@ -18,6 +18,8 @@ target/
 *.iws
 *.iml
 *.ipr
+out/
+.idea_modules/
 
 ### NetBeans ###
 /nbproject/private/
@@ -31,6 +33,8 @@ build/
 
 ### VS Code ###
 .vscode/
+.settings/
+*.code-workspace
 
 ### logs ###
 logs/

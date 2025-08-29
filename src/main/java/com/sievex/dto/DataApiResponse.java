@@ -29,12 +29,12 @@ public class DataApiResponse<T> {
     private String status;
 
     @Schema(description = "HTTP status code of the response", example = "200")
-    @JsonProperty("status_code")
+    @JsonProperty("status-code")
     private int statusCode;
 
     @Schema(description = "Human-readable message describing the response",
             example = "Operation completed successfully")
-    @JsonProperty("status_message")
+    @JsonProperty("status-message")
     private String statusMessage;
 
     @Schema(description = "JWT token for authenticated requests (if applicable)",

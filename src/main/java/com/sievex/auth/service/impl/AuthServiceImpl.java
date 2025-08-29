@@ -5,6 +5,7 @@ import com.sievex.auth.service.TokenService;
 import com.sievex.auth.service.UserService;
 import com.sievex.auth.utils.JWTUtil;
 import com.sievex.dto.request.LoginRequest;
+import com.sievex.dto.request.PasswordResetRequestDto;
 import com.sievex.dto.response.JwtResponse;
 import com.sievex.dto.response.UsersResponseDto;
 import com.sievex.exception.AuthenticationFailedException;
@@ -14,7 +15,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,19 +66,19 @@ public class AuthServiceImpl implements AuthService {
         return new JwtResponse(token, user);
     }
 
-    @Override
-    public void validateUserCredentials(String username, String password) {
+    private boolean validateUserCredentials(String username, String password) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password)
             );
+            return true;
         } catch (AuthenticationException ex) {
-            throw new AuthenticationFailedException("Invalid username or password");
+            return false;
         }
     }
 
     @Override
-        public String generateJwtToken(String username) {
+    public String generateJwtToken(String username) {
         UsersResponseDto user = userService.getUserByUserName(username);
         return jwtUtil.generateToken(user.getUserName(), user.getRole(), user.getEmail());
     }
@@ -93,5 +96,21 @@ public class AuthServiceImpl implements AuthService {
         if (!jwtUtil.isTokenExpired(token)) {
             tokenService.blacklistToken(token, expirationTime.getTime());
         }
+    }
+
+    @Override
+    public void resetPassword(PasswordResetRequestDto resetPasswordRequest) {
+        if (!resetPasswordRequest.getNewPassword().equals(resetPasswordRequest.getConfirmPassword())) {
+            throw new IllegalArgumentException("New password and confirm password do not match");
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+
+        if (!validateUserCredentials(userName, resetPasswordRequest.getOldPassword())) {
+            throw new AuthenticationFailedException("Current password is incorrect");
+        }
+
+        userService.updateUserPassword(userName, resetPasswordRequest.getNewPassword());
     }
 }

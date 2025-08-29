@@ -116,6 +116,13 @@ public class UserServiceImpl implements UserService {
                (email != null && isUserExistByEmail(email));
     }
 
+    @Override
+    public void updateUserPassword(String userName, String newPassword) {
+        if (userRepository.updatePassword(userName, passwordEncoder.encode(newPassword)) == 0) {
+            throw new IllegalArgumentException("Something went wrong!");
+        }
+    }
+
     private UsersResponseDto setUserResponseData(Users save) {
         UsersResponseDto response = new UsersResponseDto();
         response.setUserName(save.getUserName());
@@ -135,7 +142,6 @@ public class UserServiceImpl implements UserService {
         }
 
         String role = "ROLE_" + user.getRole().getName();
-        // String role = user.getRole().getName();
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
 
         return new User(user.getUserName(), user.getPassword(), authorities);

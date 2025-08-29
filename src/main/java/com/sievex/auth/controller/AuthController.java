@@ -58,19 +58,4 @@ public class AuthController {
         }
         return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_FAILURE, ApiResponseConstants.CODE_BAD_REQUEST, "Logout failed", null), HttpStatus.BAD_REQUEST);
     }
-
-    @PostMapping("user/forgot-password")
-    public ResponseEntity<DataApiResponse<Void>> forgotPassword() {
-        return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_SUCCESS, ApiResponseConstants.CODE_OK, "Password reset link sent successfully", null), HttpStatus.OK);
-    }
-
-    @PostMapping("user/reset-password")
-    public ResponseEntity<DataApiResponse<Void>> resetPassword() {
-        return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_SUCCESS, ApiResponseConstants.CODE_OK, "Password reset successfully", null), HttpStatus.OK);
-    }
-
-    @PostMapping("user/change-password")
-    public ResponseEntity<DataApiResponse<Void>> changePassword() {
-        return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_SUCCESS, ApiResponseConstants.CODE_OK, "Password changed successfully", null), HttpStatus.OK);
-    }
 }
