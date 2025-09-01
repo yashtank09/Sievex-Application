@@ -93,7 +93,7 @@ public class AuthServiceImpl implements AuthService {
 
         // Get token expiration time and blacklist the token
         Date expirationTime = jwtUtil.extractExpirationTime(token);
-        if (!jwtUtil.isTokenExpired(token)) {
+        if (jwtUtil.isTokenExpired(token)) {
             tokenService.blacklistToken(token, expirationTime.getTime());
         }
     }

@@ -3,7 +3,6 @@ package com.sievex.auth.utils;
 import com.sievex.properties.JwtProperties;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -56,11 +55,11 @@ public class JWTUtil {
 
     public boolean isTokenValid(String token, String email) {
         final String extractedEmail = extractUserName(token);
-        return (extractedEmail.equals(email) && !isTokenExpired(token));
+        return (extractedEmail.equals(email) && isTokenExpired(token));
     }
 
     public boolean isTokenExpired(String token) {
-        return extractAllClaims(token).getExpiration().before(new Date());
+        return !extractAllClaims(token).getExpiration().before(new Date());
     }
 
     private Claims extractAllClaims(String token) {
@@ -69,8 +68,10 @@ public class JWTUtil {
         }
         try {
             return Jwts.parserBuilder().setSigningKey(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)).build().parseClaimsJws(token).getBody();
+        } catch (ExpiredJwtException e) {
+            throw e;
         } catch (Exception e) {
-            throw new JwtException("Invalid token: " + e.getMessage(), e);
+            throw new JwtException("Invalid token: " + e.getMessage());
         }
     }
 
