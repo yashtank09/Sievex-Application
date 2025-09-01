@@ -40,3 +40,8 @@ build/
 logs/
 **/*.log
 *.log
+
+### Environment Variables ###
+.env
+.env.*
+!.env.example
