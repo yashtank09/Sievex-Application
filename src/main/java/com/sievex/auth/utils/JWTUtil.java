@@ -53,9 +53,9 @@ public class JWTUtil {
         return extractAllClaims(token).get("role").toString();
     }
 
-    public boolean isTokenValid(String token, String email) {
-        final String extractedEmail = extractUserName(token);
-        return (extractedEmail.equals(email) && isTokenExpired(token));
+    public boolean isTokenValid(String token, String userName) {
+        final String extractedUserName = extractUserName(token);
+        return (extractedUserName.equals(userName) && isTokenExpired(token));
     }
 
     public boolean isTokenExpired(String token) {
@@ -75,9 +75,9 @@ public class JWTUtil {
         }
     }
 
-    public String extractTokenFromHeader(String authHeader) {
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
+    public String extractTokenFromHeaderToken(String tokenString) {
+        if (tokenString != null && tokenString.startsWith("Bearer ")) {
+            return tokenString.substring(7);
         }
         throw new IllegalArgumentException("Invalid Authorization header");
     }
@@ -86,9 +86,7 @@ public class JWTUtil {
         return extractAllClaims(token).getExpiration();
     }
 
-    public void validateTokenFormat(String token) {
-        if (token.isEmpty() || token.split("\\.").length != 3) {
-            throw new MalformedJwtException("JWT structure is invalid");
-        }
+    public boolean validateTokenFormat(String token) {
+        return !token.isEmpty() && token.split("\\.").length == 3;
     }
 }

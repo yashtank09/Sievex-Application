@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UsersResponseDto getUserProfile(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
-        String token = jwtUtil.extractTokenFromHeader(authHeader);
+        String token = jwtUtil.extractTokenFromHeaderToken(authHeader);
         String userName = jwtUtil.extractUserName(token);
         return setUserResponseData(userRepository.findByUserName(userName));
     }

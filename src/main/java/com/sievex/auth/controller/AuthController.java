@@ -1,6 +1,7 @@
 package com.sievex.auth.controller;
 
 import com.sievex.auth.service.AuthService;
+import com.sievex.auth.utils.JWTUtil;
 import com.sievex.constants.ApiResponseConstants;
 import com.sievex.dto.DataApiResponse;
 import com.sievex.dto.request.LoginRequest;
@@ -24,7 +25,7 @@ public class AuthController {
     private final AuthService authService;
 
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, JWTUtil jwtUtil) {
         this.authService = authService;
     }
 
@@ -48,8 +49,8 @@ public class AuthController {
     public ResponseEntity<DataApiResponse<Void>> logout(HttpServletRequest servletRequest) {
         try {
             String authHeader = servletRequest.getHeader("Authorization");
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                String token = authHeader.substring(7);
+            String token = authService.extractTokenFromRequest(authHeader);
+            if (token != null && authService.validateToken(token)) {
                 authService.invalidateToken(token);
                 return new ResponseEntity<>(new DataApiResponse<>(ApiResponseConstants.STATUS_SUCCESS, ApiResponseConstants.CODE_OK, "Logout successful", null), HttpStatus.OK);
             }

@@ -9,6 +9,7 @@ import com.sievex.dto.request.PasswordResetRequestDto;
 import com.sievex.dto.response.JwtResponse;
 import com.sievex.dto.response.UsersResponseDto;
 import com.sievex.exception.AuthenticationFailedException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,6 +101,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public String extractTokenFromRequest(String request) {
+        return jwtUtil.extractTokenFromHeaderToken(request);
+    }
+
+    @Override
     public void resetPassword(PasswordResetRequestDto resetPasswordRequest) {
         if (!resetPasswordRequest.getNewPassword().equals(resetPasswordRequest.getConfirmPassword())) {
             throw new IllegalArgumentException("New password and confirm password do not match");
@@ -112,5 +119,12 @@ public class AuthServiceImpl implements AuthService {
         }
 
         userService.updateUserPassword(userName, resetPasswordRequest.getNewPassword());
+    }
+
+    @Override
+    public boolean validateToken(String token) {
+        String userName = jwtUtil.extractUserName(token);
+        UserDetails userDetails = userService.loadUserByUsername(userName);
+        return jwtUtil.isTokenValid(token, userDetails.getUsername());
     }
 }
