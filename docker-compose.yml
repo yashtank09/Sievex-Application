@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: sieve-application
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/sievedb?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
+      - SPRING_DATASOURCE_USERNAME=sieveuser
+      - SPRING_DATASOURCE_PASSWORD=sievepass
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - sieve-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  db:
+    image: mysql:8.0
+    container_name: sieve-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: sievedb
+      MYSQL_USER: sieveuser
+      MYSQL_PASSWORD: sievepass
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./DDLs.sql:/docker-entrypoint-initdb.d/DDLs.sql
+      - ./default_data_script.sql:/docker-entrypoint-initdb.d/default_data_script.sql
+      - ./m_site_ddl.sql:/docker-entrypoint-initdb.d/m_site_ddl.sql
+    ports:
+      - "3308:3308"
+    networks:
+      - sieve-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u$${MYSQL_USER}", "-p$${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: sieve-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-sievepass} --appendonly yes
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-sievepass}
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - sieve-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  sieve-network:
+    driver: bridge
+
+volumes:
+  db_data:
+  redis_data:
