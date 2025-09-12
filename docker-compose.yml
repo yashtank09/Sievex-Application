@@ -6,7 +6,7 @@ services:
     container_name: sieve-application
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8081:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/sievedb?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
@@ -33,21 +33,26 @@ services:
     container_name: sieve-db
     restart: unless-stopped
     environment:
+      MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: sievedb
       MYSQL_USER: sieveuser
       MYSQL_PASSWORD: sievepass
-      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_ROOT_HOST: '%'
+    command: --default-authentication-plugin=mysql_native_password
+            --character-set-server=utf8mb4
+            --collation-server=utf8mb4_unicode_ci
+            --max_connections=1000
     volumes:
       - db_data:/var/lib/mysql
-      - ./DDLs.sql:/docker-entrypoint-initdb.d/DDLs.sql
-      - ./default_data_script.sql:/docker-entrypoint-initdb.d/default_data_script.sql
-      - ./m_site_ddl.sql:/docker-entrypoint-initdb.d/m_site_ddl.sql
+      - ./DDLs.sql:/docker-entrypoint-initdb.d/01-ddl.sql
+      - ./m_site_ddl.sql:/docker-entrypoint-initdb.d/02-site-ddl.sql
+      - ./default_data_script.sql:/docker-entrypoint-initdb.d/03-data.sql
     ports:
-      - "3308:3308"
+      - "3308:3306"
     networks:
       - sieve-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u$${MYSQL_USER}", "-p$${MYSQL_PASSWORD}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-usieveuser", "-psievepass"]
       interval: 10s
       timeout: 5s
       retries: 5
