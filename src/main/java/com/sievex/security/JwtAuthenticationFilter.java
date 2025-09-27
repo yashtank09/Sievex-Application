@@ -1,13 +1,13 @@
 package com.sievex.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sievex.auth.service.SecurityConfigService;
 import com.sievex.auth.service.TokenService;
 import com.sievex.auth.service.UserService;
 import com.sievex.auth.utils.JWTUtil;
 import com.sievex.constants.JwtConstants;
 import com.sievex.dto.DataApiResponse;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,6 +27,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -40,37 +42,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final TokenService tokenService;
     private final ObjectMapper objectMapper;
     private final UserService userService;
+    private final SecurityConfigService securityConfigService;
+    private final PathMatcher pathMatcher = new AntPathMatcher();
+
 
     @Autowired
-    public JwtAuthenticationFilter(JWTUtil jwtUtil, TokenService tokenService, ObjectMapper objectMapper, UserService userService) {
+    public JwtAuthenticationFilter(JWTUtil jwtUtil, TokenService tokenService, ObjectMapper objectMapper, UserService userService, SecurityConfigService securityConfigService) {
         this.jwtUtil = jwtUtil;
         this.tokenService = tokenService;
         this.objectMapper = objectMapper;
         this.userService = userService;
+        this.securityConfigService = securityConfigService;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String requestPath = request.getRequestURI();
+        String contextPath = request.getContextPath();
+        String path = requestPath.substring(contextPath.length());
+        // Skip JWT filter for public paths
+        return securityConfigService.getPublicPaths().stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
-            if (isLoginRequest(request)) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
             final String authHeader = request.getHeader(JwtConstants.AUTH_HEADER);
 
-            if (authHeader == null) {
-                sendErrorResponse(response, "No authorization header provided", HttpStatus.UNAUTHORIZED);
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                sendErrorResponse(response, "No valid authorization header provided", HttpStatus.UNAUTHORIZED);
                 logger.warn("No authorization header provided");
                 return;
             }
 
-            if (!authHeader.startsWith("Bearer ")) {
-                sendErrorResponse(response, "Invalid authorization header format. Expected 'Bearer <token>'", HttpStatus.UNAUTHORIZED);
-            }
-
             String jwtToken = authHeader.substring(7).trim();
-
 
             if (jwtUtil.validateTokenFormat(jwtToken)) {
                 sendErrorResponse(response, "Invalid JWT token: Invalid token format", HttpStatus.BAD_REQUEST);
@@ -98,15 +103,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throw new BadCredentialsException("Invalid JWT token: Malformed token");
         } catch (ExpiredJwtException ex) {
             throw new CredentialsExpiredException("JWT token has expired. Please log in again.", ex);
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new BadCredentialsException("Unable to process JWT token: " + e.getMessage());
         } catch (Exception e) {
             throw new AuthenticationServiceException("Authentication failed: " + e.getMessage(), e);
         }
-    }
-
-    private boolean isLoginRequest(HttpServletRequest request) {
-        return request.getRequestURI().contains("/login") && request.getMethod().equalsIgnoreCase("POST");
     }
 
     private void sendErrorResponse(HttpServletResponse response, String message, HttpStatus status) throws
